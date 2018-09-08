@@ -5,17 +5,16 @@
 
 namespace OSE
 {
-	using namespace std::chrono;
 
 	struct TimeStep
 	{
 		friend class Timer;
 
-		inline TimeStep() : m_Duration{ duration<double>::zero() } {}
-		inline TimeStep(nanoseconds nanoseconds) : m_Duration{ duration_cast<duration<double>>(nanoseconds) } {}
-		inline TimeStep(milliseconds milliseconds) : m_Duration{ duration_cast<duration<double>>(milliseconds) } {};
+        using duration = std::chrono::duration<double>; //seconds
+
+		inline TimeStep() : m_Duration{ 0 } {}
 		inline TimeStep(double seconds) : m_Duration{ seconds } {};
-		inline TimeStep(duration<double> duration) : m_Duration{ duration } {};
+		inline TimeStep(duration duration) : m_Duration{ duration.count() } {};
 
 		inline double Seconds() const { return m_Duration.count(); }
 		inline double Milliseconds() const { return m_Duration.count() * 1000.0; }

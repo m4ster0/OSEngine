@@ -2,8 +2,8 @@
 
 namespace OSE
 {
-	Timer::Timer():
-		m_Update{ high_resolution_clock::now() }
+	Timer::Timer(std::function<clock::time_point()> clockCallback):
+        m_ClockCallback{ clockCallback }, m_Update{ clockCallback() }
 	{
 	}
 
@@ -15,9 +15,9 @@ namespace OSE
 	{
 		m_GameTime.total.m_Duration += m_AccTime.m_Duration;
 		m_GameTime.delta.m_Duration = m_AccTime.m_Duration;
-		m_GameTime.lag.m_Duration = duration<double>::zero();
+		m_GameTime.lag.m_Duration = TimeStep::duration::zero();
 
-		m_AccTime.m_Duration = duration<double>::zero();
+		m_AccTime.m_Duration = TimeStep::duration::zero();
 
 		return true;
 	}
@@ -40,15 +40,15 @@ namespace OSE
 
 	void Timer::Update()
 	{
-		auto current = high_resolution_clock::now();
-		duration<double> elapsedTime{ current - m_Update };
+		auto current = m_ClockCallback();
+        TimeStep::duration elapsedTime{ current - m_Update };
 		m_AccTime.m_Duration += elapsedTime;
 		m_Update = current;
 	}
 
 	void Timer::Reset()
 	{
-		m_Update = high_resolution_clock::now();
+		m_Update = m_ClockCallback();
 		m_GameTime = GameTime{ };
 	}
 }
