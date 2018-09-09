@@ -9,19 +9,16 @@
 #include <EGL/egl.h>
 
 namespace OSE {
-
     class AndroidGLContext : public GraphicsContext
     {
         friend class GLDevice;
 
-        struct AndroidGLSwapChain: public Resource<AndroidGLSwapChain>
+        struct AndroidGLSwapChain : public Resource<AndroidGLSwapChain>
         {
             EGLDisplay display{ EGL_NO_DISPLAY };
             EGLSurface surface{ EGL_NO_SURFACE };
 
-            AndroidGLSwapChain() = default;
-
-            ~AndroidGLSwapChain()
+            void Dispose() override
             {
                 if (surface != EGL_NO_SURFACE)
                     eglDestroySurface(display, surface);
@@ -47,5 +44,4 @@ namespace OSE {
     protected:
         AndroidGLContext();
     };
-
 }

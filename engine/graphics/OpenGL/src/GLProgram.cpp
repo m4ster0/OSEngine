@@ -1,30 +1,160 @@
 #include "OSE/Graphics/GLProgram.h"
-#include "OSE/Graphics/GLShader.h"
+#include "OSE/Graphics/GLVertexDescriptor.h"
 #include "OSE/Graphics/GLCommon.h"
 
 #include <OSE/Log.h>
 
 namespace OSE {
+    using ShaderType = GLShaderDescriptor::Type;
 
-    GLProgram::GLProgram():
-        m_Handle{ glCreateProgram() }
+    uint GetShaderGLType(ShaderType type)
     {
+        switch (type)
+        {
+        case ShaderType::Vertex:
+            return GL_VERTEX_SHADER;
+        case ShaderType::Fragment:
+            return GL_FRAGMENT_SHADER;
+        }
 
+        return 0;
     }
 
-    GLProgram::~GLProgram()
+    std::string GetShaderName(ShaderType type)
     {
-        Dispose();
+        static std::unordered_map<ShaderType, std::string> typeNames = {
+            { ShaderType::Vertex, "vertex"},
+            { ShaderType::Fragment, "fragment" }
+        };
+
+        return typeNames[type];
     }
 
-    void GLProgram::Begin()
+    struct GLShader
     {
-        glUseProgram(m_Handle);
+        static std::unique_ptr<GLShader> Create(const GLShaderDescriptor& desc)
+        {
+            uint glType{ GetShaderGLType(desc.type) };
+            const char* cStr{ desc.src.c_str() };
+            std::unique_ptr<GLShader> shader = std::make_unique<GLShader>(glType);
+
+            GLCall(glShaderSource(shader->handle, 1, &cStr, NULL));
+            GLCall(glCompileShader(shader->handle));
+
+            int success;
+            GLCall(glGetShaderiv(shader->handle, GL_COMPILE_STATUS, &success));
+            if (success == GL_FALSE)
+            {
+                int length;
+                GLCall(glGetShaderiv(shader->handle, GL_INFO_LOG_LENGTH, &length));
+                std::unique_ptr<char[]> message{ new char[length] };
+                GLCall(glGetShaderInfoLog(shader->handle, length, &length, message.get()));
+                OSE_ERROR("Shader compilation failure: ", message.get());
+                return nullptr;
+            }
+
+            return shader;
+        }
+
+        uint handle{ 0 };
+
+        GLShader(const GLShader& other) = delete;
+        GLShader(GLShader&& other) = delete;
+
+        GLShader& operator=(const GLShader& other) = delete;
+        GLShader& operator=(GLShader&& other) = delete;
+
+        ~GLShader()
+        {
+            glDeleteShader(handle);
+        }
+
+    private:
+        GLShader(uint type)
+        {
+            handle = glCreateShader(type);
+        }
+    };
+
+    std::unique_ptr<GLProgram> GLProgram::Create(const std::vector<GLShaderDescriptor>& shaderDescs)
+    {
+        std::unique_ptr<GLProgram> program = std::make_unique<GLProgram>();
+
+        std::vector<std::unique_ptr<GLShader>> shaders;
+        for (const auto& desc : shaderDescs)
+        {
+            std::unique_ptr<GLShader> shader = GLShader::Create(desc);
+            if (shader)
+            {
+                GLCall(glAttachShader(program->m_Handle, shader->handle));
+                shaders.push_back(shader);
+            }
+        }
+
+        const std::unordered_map<GLVertexAttribute::Type, std::string>& attrTypes = GLVertexAttribute::TypeName;
+        for (auto it = attrTypes.begin(); it != attrTypes.end(); ++it)
+        {
+            uint location{ static_cast<uint>(it->first) }; //VertexAttribute::Type enum value corresponds to location in shader
+            const char* name{ it->second.c_str() }; //VertexAttribute::Type has corresponding name which all shaders must adhere to if using it
+            GLCall(glBindAttribLocation(program->m_Handle, location, name));
+        }
+
+        GLCall(glLinkProgram(program->m_Handle));
+
+        int success;
+        GLCall(glGetProgramiv(program->m_Handle, GL_LINK_STATUS, &success));
+        if (success == GL_FALSE)
+        {
+            int length;
+            GLCall(glGetProgramiv(program->m_Handle, GL_INFO_LOG_LENGTH, &length));
+            std::unique_ptr<char[]> message{ new char[length] };
+            GLCall(glGetProgramInfoLog(program->m_Handle, length, &length, message.get()));
+            OSE_ERROR("program linking failure: ", message.get());
+            return nullptr;
+        }
+
+        GLCall(glValidateProgram(program->m_Handle));
+
+        return program;
     }
 
-    void GLProgram::End()
+    std::unique_ptr<GLProgram> GLProgram::Create(const std::string& vertSrc, const std::string& fragSrc)
+    {
+        return Create({ {ShaderType::Vertex, vertSrc}, {ShaderType::Fragment, fragSrc} });
+    }
+
+    std::unique_ptr<GLProgram> GLProgram::Create(const std::string& singleSrc)
+    {
+        std::function<GLShaderDescriptor(ShaderType)> getShaderDesc = [&singleSrc](ShaderType type) -> GLShaderDescriptor {
+            static const std::string tag{ "%%" };
+
+            std::string shaderTag{ tag + GetShaderName(type) };
+            std::string::size_type start{ singleSrc.find(shaderTag) };
+            std::size_t startPos = start + shaderTag.length();
+
+            std::string::size_type end{ 0 };
+            if (start != std::string::npos && (end = singleSrc.find(shaderTag, startPos)))
+                return { type, singleSrc.substr(startPos, end - startPos) };
+
+            return { type, "" };
+        };
+
+        return Create({ getShaderDesc(ShaderType::Vertex), getShaderDesc(ShaderType::Fragment) });
+    }
+
+    void GLProgram::CleanUsage()
     {
         glUseProgram(0);
+    }
+
+    GLProgram::GLProgram()
+    {
+        m_Handle = glCreateProgram();
+    }
+
+    void GLProgram::Use()
+    {
+        glUseProgram(m_Handle);
     }
 
     uint GLProgram::GetAttributeLocation(const std::string& name)
@@ -35,129 +165,8 @@ namespace OSE {
     void GLProgram::Dispose()
     {
         if (m_Handle)
-        {
             GLCall(glDeleteProgram(m_Handle));
-            m_Handle = 0;
-        }
+
+        m_Handle = 0;
     }
-
-    void GLProgram::AttachShader(const GLShader& shader)
-    {
-        GLCall(glAttachShader(m_Handle, shader.m_Handle));
-    }
-
-    void GLProgram::BindAttribute(uint location, const std::string& name)
-    {
-        GLCall(glBindAttribLocation(m_Handle, location, name.c_str()));
-    }
-
-    bool GLProgram::Link()
-    {
-        GLCall(glLinkProgram(m_Handle));
-
-        int success;
-        GLCall(glGetProgramiv(m_Handle, GL_LINK_STATUS, &success));
-        if ( success == GL_FALSE )
-        {
-            int length;
-            GLCall(glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length));
-            std::unique_ptr<char[]> message{ new char[length] };
-            GLCall(glGetProgramInfoLog(m_Handle, length, &length, message.get()));
-            OSE_ERROR("program linking failure: ", message.get());
-            return false;
-        }
-
-        GLCall(glValidateProgram(m_Handle));
-
-        return true;
-    }
-
-    /* ************************ */
-    /* ******* Builder ******** */
-    /* ************************ */
-    GLProgram::Builder::Builder()
-    {
-
-    }
-
-    bool GLProgram::Builder::HasShader(GLShader::Type type)
-    {
-        for (auto& shader : m_Shaders)
-        {
-            if (shader->GetType() == type)
-                return true;
-        }
-
-        return false;
-    }
-
-    GLProgram::Builder& GLProgram::Builder::AddShader(GLShader::Type type, const std::string& source)
-    {
-        std::unique_ptr<GLShader> shader{ new GLShader{ type, source } };
-        if (!HasShader(type) && shader->Compile())
-            m_Shaders.push_back(shader);
-
-        return *this;
-    }
-
-    GLProgram::Builder& GLProgram::Builder::BindAttribute(uint location, const std::string& name)
-    {
-        m_AttribBinds[name] = location;
-        return *this;
-    }
-
-    std::unique_ptr<GLProgram> GLProgram::Builder::Create()
-    {
-        std::unique_ptr<GLProgram> result{ new GLProgram };
-
-        for (auto& shader : m_Shaders)
-            result->AttachShader(*shader);
-
-        for (auto it = m_AttribBinds.begin(); it != m_AttribBinds.end(); ++it)
-            result->BindAttribute(it->second, it->first);
-
-        if (result->Link())
-            return result;
-
-        return nullptr;
-    }
-
-    GLProgram::SingleSrcBuilder::SingleSrcBuilder(const std::string& source):
-        m_Source{ source }
-    {
-
-    }
-
-    GLProgram::SingleSrcBuilder::SingleSrcBuilder(const FileSystem& fileSystem, 
-                                                  const std::string& devicePath)
-    {
-        //TODO
-    }
-
-    GLProgram::SingleSrcBuilder::SingleSrcBuilder(const FileSystem& fileSystem, 
-                                                  const std::string& device, 
-                                                  const std::string& path)
-    {
-        std::unique_ptr<File> file = fileSystem.OpenFileSync(device, path, FileMode::Read);
-        if (file)
-            file->Read(m_Source);
-    }
-
-
-    GLProgram::Builder& GLProgram::SingleSrcBuilder::AddShader(GLShader::Type type, const std::string& typeTag)
-    {
-        static const std::string tag{ "#shader" };
-
-        std::string startTag = tag + " " + typeTag;
-        std::string::size_type start{ m_Source.find(startTag) };
-        std::size_t startPos = start + startTag.length();
-
-        std::string::size_type end{ 0 };
-        if (start != std::string::npos && (end = m_Source.find(tag, startPos)))
-            return Builder::AddShader( type, m_Source.substr(startPos, end - startPos) );
-
-        return *this;
-    }
-
-
 }

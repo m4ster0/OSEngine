@@ -9,42 +9,16 @@
 #include "Windows.h"
 
 namespace OSE {
-
     class Win32GLContext : public GraphicsContext
     {
         friend class GLDevice;
 
-        struct Win32GLSwapChain: public Resource<Win32GLSwapChain>
+        struct Win32GLSwapChain : public Resource<Win32GLSwapChain>
         {
             HWND windowHandle{ NULL };
             HDC windowDC{ NULL };
 
-            Win32GLSwapChain() = default;
-            Win32GLSwapChain(const Win32GLSwapChain& other) = delete;
-            Win32GLSwapChain& operator=(const Win32GLSwapChain& other) = delete;
-
-            Win32GLSwapChain(Win32GLSwapChain&& other): 
-                windowHandle{ other.windowHandle }, windowDC{ other.windowDC }
-            {
-                other.windowHandle = NULL;
-                other.windowDC = NULL;
-            }
-
-            Win32GLSwapChain& operator=(Win32GLSwapChain&& other)
-            {
-                if (this != &other)
-                {
-                    ReleaseDC(windowHandle, windowDC);
-                    windowHandle = other.windowHandle;
-                    windowDC = other.windowDC;
-                    other.windowHandle = NULL;
-                    other.windowDC = NULL;
-                }
-
-                return *this;
-            }
-
-            ~Win32GLSwapChain()
+            void Dispose() override
             {
                 ReleaseDC(windowHandle, windowDC);
                 windowHandle = NULL;
@@ -71,5 +45,4 @@ namespace OSE {
     protected:
         Win32GLContext();
     };
-
 }

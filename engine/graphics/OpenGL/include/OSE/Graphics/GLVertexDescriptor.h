@@ -2,37 +2,51 @@
 
 #include <OSE/TypeDefs.h>
 
+#include <unordered_map>
+#include <string>
 #include <vector>
 
 namespace OSE {
+    struct GLVertexAttribute
+    {
+        enum class Type : uint
+        {
+            Position = 0,
+            Normal,
+            Color,
+            TexCoord0,
+            TexCoord1
+        };
+
+        static std::unordered_map<Type, std::string> TypeName;
+
+        Type type;
+        size_t size{ 0 };
+        bool normalized{ false };
+    };
 
     class GLVertexDescriptor
     {
     public:
-        struct Attribute
+        GLVertexDescriptor(const std::vector<GLVertexAttribute>& attributes);
+
+        const std::vector<GLVertexAttribute>& GetAttributes() const
         {
-            size_t offset;
-        public:
-            enum class Type
-            {
-                Position,
-                Normal,
-                Color,
-                TexCoord0,
-                TexCoord1
-            };
+            return m_Attributes;
+        }
 
-            Type type;
-            uint size;
-            bool normalized;
-        };
+        size_t GetSize() const
+        {
+            return m_Size;
+        }
 
-        GLVertexDescriptor(const std::vector<Attribute>& attributes);
-        GLVertexDescriptor(std::vector<Attribute>&& attributes);
+        size_t GetByteSize() const
+        {
+            return m_Size * sizeof(float);
+        }
 
     private:
-        std::vector<Attribute> m_Attributes;
-        size_t m_Stride;
+        std::vector<GLVertexAttribute> m_Attributes;
+        size_t m_Size{ 0 };
     };
-
 }

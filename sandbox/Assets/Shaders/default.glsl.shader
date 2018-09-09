@@ -1,4 +1,4 @@
-#shader vertex
+%%vertex
 #version 330 core
 
 in vec2 aPosition;
@@ -11,9 +11,9 @@ void main()
     vColor = aColor;
     gl_Position = vec4(aPosition.x, aPosition.y * -1.0, 0, 1.0);
 }
-#shader
+%%vertex
 
-#shader fragment
+%%fragment
 #version 330 core
 
 out vec4 outColor;
@@ -24,4 +24,4 @@ void main()
 {
     outColor = vec4(vColor, 1.0f);
 }
-#shader
+%%fragment

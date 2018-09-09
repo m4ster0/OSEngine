@@ -22,9 +22,11 @@ static void CheckGLError(const char* file, int line)
 }
 
 #ifdef DEBUG_OSE
-    #define GLCall(x)   ClearGLError(); \
+    #define GLCall(x)   { \
+                        ClearGLError(); \
                         x; \
-                        CheckGLError(__FILE__, __LINE__);
+                        CheckGLError(__FILE__, __LINE__); \
+                        }
 #else
     #define GLCall(x) x;
 #endif // DEBUG

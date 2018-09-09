@@ -19,7 +19,7 @@ namespace OSE {
     protected:
         GraphicsContext() = default;
 
-        ResourceID m_ActiveSwapChain{ };
+        ResourceID m_ActiveSwapChain;
     };
 
 }

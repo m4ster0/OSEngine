@@ -6,7 +6,6 @@
 #include <atomic>
 
 namespace OSE {
-
     template<typename T>
     class Resource
     {
@@ -14,16 +13,23 @@ namespace OSE {
 
         ResourceID m_RID;
     public:
-        Resource() : m_RID{ ++s_Counter } { }
-        virtual ~Resource() = default;
+        Resource() : m_RID{ ++s_Counter }
+        {
+        }
+
+        virtual ~Resource()
+        {
+            Dispose();
+        };
 
         virtual ResourceID GetRID() const
         {
             return m_RID;
         }
+
+        virtual void Dispose() = 0;
     };
 
     template<typename T>
     std::atomic<size_t> Resource<T>::s_Counter{ 0 };
-
 }
