@@ -2,11 +2,6 @@
 #include "OSE/Graphics/GLCommon.h"
 
 namespace OSE {
-    void GLIndexBuffer::Clear()
-    {
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    }
-
     GLIndexBuffer::GLIndexBuffer(size_t size, bool isStatic) :
         GLBuffer(size, sizeof(uint16), isStatic)
     {
@@ -18,16 +13,16 @@ namespace OSE {
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 
+    GLIndexBuffer::~GLIndexBuffer()
+    {
+        Dispose();
+    }
+
     void GLIndexBuffer::Write(const byte* data)
     {
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle));
         GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ByteSize, data, m_IsStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-    }
-
-    void GLIndexBuffer::Bind()
-    {
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle));
     }
 
     void GLIndexBuffer::Dispose()

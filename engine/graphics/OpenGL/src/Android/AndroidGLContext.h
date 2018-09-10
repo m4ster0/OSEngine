@@ -18,6 +18,11 @@ namespace OSE {
             EGLDisplay display{ EGL_NO_DISPLAY };
             EGLSurface surface{ EGL_NO_SURFACE };
 
+            ~AndroidGLSwapChain()
+            {
+                Dispose();
+            }
+
             void Dispose() override
             {
                 if (surface != EGL_NO_SURFACE)

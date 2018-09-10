@@ -36,7 +36,7 @@ namespace OSE {
         {
             uint glType{ GetShaderGLType(desc.type) };
             const char* cStr{ desc.src.c_str() };
-            std::unique_ptr<GLShader> shader = std::make_unique<GLShader>(glType);
+            std::unique_ptr<GLShader> shader{ new GLShader{ glType } };
 
             GLCall(glShaderSource(shader->handle, 1, &cStr, NULL));
             GLCall(glCompileShader(shader->handle));
@@ -78,7 +78,7 @@ namespace OSE {
 
     std::unique_ptr<GLProgram> GLProgram::Create(const std::vector<GLShaderDescriptor>& shaderDescs)
     {
-        std::unique_ptr<GLProgram> program = std::make_unique<GLProgram>();
+        std::unique_ptr<GLProgram> program{ new GLProgram };
 
         std::vector<std::unique_ptr<GLShader>> shaders;
         for (const auto& desc : shaderDescs)
@@ -87,7 +87,7 @@ namespace OSE {
             if (shader)
             {
                 GLCall(glAttachShader(program->m_Handle, shader->handle));
-                shaders.push_back(shader);
+                shaders.push_back(std::move(shader));
             }
         }
 
@@ -142,24 +142,24 @@ namespace OSE {
         return Create({ getShaderDesc(ShaderType::Vertex), getShaderDesc(ShaderType::Fragment) });
     }
 
-    void GLProgram::CleanUsage()
-    {
-        glUseProgram(0);
-    }
-
     GLProgram::GLProgram()
     {
         m_Handle = glCreateProgram();
     }
 
-    void GLProgram::Use()
+    GLProgram::~GLProgram()
     {
-        glUseProgram(m_Handle);
+        Dispose();
     }
 
-    uint GLProgram::GetAttributeLocation(const std::string& name)
+    uint GLProgram::GetAttributeLocation(const std::string& name) const
     {
         return glGetAttribLocation(m_Handle, name.c_str());
+    }
+
+    uint OSE::GLProgram::GetUniformLocation(const std::string& name) const
+    {
+        return glGetUniformLocation(m_Handle, name.c_str());
     }
 
     void GLProgram::Dispose()

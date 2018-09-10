@@ -3,6 +3,8 @@
 #include <OSE/Graphics/Resource.h>
 #include <OSE/TypeDefs.h>
 
+#include <vector>
+
 namespace OSE {
     class GLBuffer : public Resource<GLBuffer>
     {
@@ -28,8 +30,8 @@ namespace OSE {
         virtual ~GLBuffer() = default;
 
         virtual void Write(const byte* data) = 0;
-        virtual void Bind() = 0;
 
         inline size_t GetSize() const { return m_Size; }
+        inline uint GetHandle() const { return m_Handle; }
     };
 }

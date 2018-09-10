@@ -29,7 +29,7 @@ namespace OSE {
         static std::unique_ptr<GLProgram> Create(const std::string& vertSrc, const std::string& fragSrc);
         static std::unique_ptr<GLProgram> Create(const std::string& singleSrc);
 
-        static void CleanUsage();
+        ~GLProgram();
 
         GLProgram(const GLProgram& other) = delete;
         GLProgram(GLProgram&& other) = delete;
@@ -37,10 +37,14 @@ namespace OSE {
         GLProgram& operator=(const GLProgram& other) = delete;
         GLProgram& operator=(GLProgram&& other) = delete;
 
-        void Use();
-        uint GetAttributeLocation(const std::string& name);
+        uint GetAttributeLocation(const std::string& name) const;
+        inline uint GetHandle() const { return m_Handle; }
 
         //TODO add uniform handling
+        uint GetUniformLocation(const std::string& name) const;
+
+        //template<typename T>
+        //void SetUniform(const std::string& name, T value);
 
         void Dispose() override;
 

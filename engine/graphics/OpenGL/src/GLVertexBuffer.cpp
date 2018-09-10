@@ -2,11 +2,6 @@
 #include "OSE/Graphics/GLcommon.h"
 
 namespace OSE {
-    void GLVertexBuffer::Clear()
-    {
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    }
-
     GLVertexBuffer::GLVertexBuffer(size_t size, size_t vertexByteSize, bool isStatic) :
         GLBuffer(size, vertexByteSize, isStatic)
     {
@@ -18,16 +13,16 @@ namespace OSE {
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
     }
 
+    GLVertexBuffer::~GLVertexBuffer()
+    {
+        Dispose();
+    }
+
     void GLVertexBuffer::Write(const byte* data)
     {
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_Handle));
         GLCall(glBufferData(GL_ARRAY_BUFFER, m_ByteSize, data, m_IsStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-    }
-
-    void GLVertexBuffer::Bind()
-    {
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_Handle));
     }
 
     void GLVertexBuffer::Dispose()

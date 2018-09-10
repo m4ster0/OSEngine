@@ -8,9 +8,8 @@ namespace OSE {
     class GLIndexBuffer : public GLBuffer
     {
     public:
-        static void Clear();
-
         GLIndexBuffer(size_t size, bool isStatic = true);
+        ~GLIndexBuffer();
 
         GLIndexBuffer(const GLIndexBuffer&) = delete;
         GLIndexBuffer& operator=(const GLIndexBuffer&) = delete;
@@ -19,7 +18,6 @@ namespace OSE {
         GLIndexBuffer& operator=(GLIndexBuffer&&) = delete;
 
         void Write(const byte* data) override;
-        void Bind() override;
 
         void Dispose() override;
     };

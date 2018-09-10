@@ -19,7 +19,6 @@ namespace OSE {
 
         virtual ~Resource()
         {
-            Dispose();
         };
 
         virtual ResourceID GetRID() const

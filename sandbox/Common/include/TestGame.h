@@ -1,6 +1,6 @@
 #pragma once
 
-#include <OSE/Graphics/GLProgram.h>
+#include <OSE/Graphics/GLRenderer.h>
 #include <OSE/Game.h>
 #include <OSE/TypeDefs.h>
 
@@ -8,15 +8,12 @@
 
 struct TriangleData
 {
-    OSE::uint vbo;
-    OSE::uint ibo;
-    OSE::uint vao;
-    std::unique_ptr<OSE::GLProgram> shader;
-    OSE::uint positionLoc;
-    OSE::uint colorLoc;
+    OSE::GLVertexDescriptor desc{ {{ OSE::GLVertexAttribute::Type::Position, 2 }, { OSE::GLVertexAttribute::Type::Color, 3 }} };
+    std::unique_ptr<OSE::GLVertexBuffer> vertices;
+    std::unique_ptr<OSE::GLIndexBuffer> indices;
 };
 
-class TestGame: public OSE::Game
+class TestGame : public OSE::Game
 {
 public:
     TestGame();
@@ -33,9 +30,12 @@ public:
     virtual void OnRender(const OSE::GameTime& gameTime) override;
 
 private:
+    std::unique_ptr<OSE::GLRenderer> renderer{ nullptr };
 
+    //material
+    //textures
+    std::unique_ptr<OSE::GLProgram> shader{ nullptr };
+    //material end
     TriangleData triangleData1;
     TriangleData triangleData2;
-
-
 };

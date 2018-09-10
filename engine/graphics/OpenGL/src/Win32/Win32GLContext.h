@@ -18,6 +18,11 @@ namespace OSE {
             HWND windowHandle{ NULL };
             HDC windowDC{ NULL };
 
+            ~Win32GLSwapChain()
+            {
+                Dispose();
+            }
+
             void Dispose() override
             {
                 ReleaseDC(windowHandle, windowDC);

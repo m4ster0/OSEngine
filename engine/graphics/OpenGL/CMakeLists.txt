@@ -8,7 +8,8 @@ set( SOURCES
    ${SRC_DIR}/GLProgram.cpp
    ${SRC_DIR}/GLVertexDescriptor.cpp
    ${SRC_DIR}/GLVertexBuffer.cpp
-   ${SRC_DIR}/GLIndexBuffer.cpp)
+   ${SRC_DIR}/GLIndexBuffer.cpp
+   ${SRC_DIR}/GLRenderer.cpp)
 
 set( PLATFORM_LIBRARIES )
 
@@ -17,17 +18,17 @@ if ( ANDROID )
     list( APPEND SOURCES
         ${SRC_DIR}/Android/AndroidGLContext.cpp
         ${SRC_DIR}/Android/AndroidGLDevice.cpp )
-    list( APPEND PLATFORM_LIBRARIES 
+    list( APPEND PLATFORM_LIBRARIES
         EGL
         GLESv2 )
 endif (  )
 
 if ( WIN32 )
     set( PLATFORM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Win32 )
-    list( APPEND SOURCES 
+    list( APPEND SOURCES
         ${SRC_DIR}/Win32/Win32GLContext.cpp
         ${SRC_DIR}/Win32/Win32GLDevice.cpp )
-    list( APPEND PLATFORM_LIBRARIES 
+    list( APPEND PLATFORM_LIBRARIES
         libglew_static )
 endif (  )
 
@@ -41,8 +42,8 @@ target_include_directories(oceansoul-graphics-gl
     PUBLIC ${INCLUDE_DIR}
     PRIVATE ${PLATFORM_INCLUDE_DIR} )
 
-target_link_libraries(oceansoul-graphics-gl 
-                        PUBLIC 
+target_link_libraries(oceansoul-graphics-gl
+                        PUBLIC
                             ${PLATFORM_LIBRARIES}
                         PRIVATE
                             oceansoul-core )
