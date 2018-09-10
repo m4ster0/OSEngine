@@ -1,24 +1,18 @@
 #pragma once
-
 #include "OSE/Graphics/GLBuffer.h"
 
-#include <OSE/TypeDefs.h>
-#include <vector>
+#include <OSE/Graphics/Resource.h>
 
 namespace OSE {
-    class GLVertexBuffer : public GLBuffer
+    class GLVertexBuffer : public GLBuffer<float>, public Resource<GLVertexBuffer>
     {
     public:
-        GLVertexBuffer(size_t size, size_t vertexByteSize, bool isStatic = true);
+        GLVertexBuffer(size_t size, bool isStatic = true);
         ~GLVertexBuffer();
 
-        GLVertexBuffer(const GLVertexBuffer&) = delete;
-        GLVertexBuffer& operator=(const GLVertexBuffer&) = delete;
+        void WriteData(const byte* data) override;
+        void WriteSubData(const byte* data, size_t length, size_t offset) override;
 
-        GLVertexBuffer(GLVertexBuffer&&) = delete;
-        GLVertexBuffer& operator=(GLVertexBuffer&&) = delete;
-
-        void Write(const byte* data) override;
         void Dispose() override;
     };
 }

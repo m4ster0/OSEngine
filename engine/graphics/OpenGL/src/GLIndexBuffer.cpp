@@ -3,14 +3,12 @@
 
 namespace OSE {
     GLIndexBuffer::GLIndexBuffer(size_t size, bool isStatic) :
-        GLBuffer(size, sizeof(uint16), isStatic)
+        GLBuffer(size, isStatic)
     {
         GLCall(glGenBuffers(1, &m_Handle));
         OSE_ASSERT(m_Handle, "Could not create vertex buffer");
 
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle));
-        GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ByteSize, nullptr, m_IsStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
-        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        WriteData(nullptr);
     }
 
     GLIndexBuffer::~GLIndexBuffer()
@@ -18,10 +16,17 @@ namespace OSE {
         Dispose();
     }
 
-    void GLIndexBuffer::Write(const byte* data)
+    void GLIndexBuffer::WriteData(const byte* data)
     {
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle));
         GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_ByteSize, data, m_IsStatic ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW));
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+    }
+
+    void GLIndexBuffer::WriteSubData(const byte* data, size_t length, size_t offset)
+    {
+        GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Handle));
+        GLCall(glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, length, data));
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
     }
 

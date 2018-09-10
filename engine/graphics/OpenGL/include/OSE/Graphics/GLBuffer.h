@@ -1,12 +1,12 @@
 #pragma once
 
-#include <OSE/Graphics/Resource.h>
 #include <OSE/TypeDefs.h>
 
 #include <vector>
 
 namespace OSE {
-    class GLBuffer : public Resource<GLBuffer>
+    template<typename T>
+    class GLBuffer
     {
     protected:
         uint m_Handle{ 0 };
@@ -15,9 +15,11 @@ namespace OSE {
         size_t m_ByteSize{ 0 };
         bool m_IsStatic{ true };
 
+        virtual void WriteData(const byte* data) = 0;
+        virtual void WriteSubData(const byte* data, size_t length, size_t offset) = 0;
     public:
-        GLBuffer(size_t size, size_t elementByteSize, bool isStatic) :
-            m_Size{ size }, m_ByteSize{ size * elementByteSize }, m_IsStatic{ isStatic }
+        GLBuffer(size_t size, bool isStatic) :
+            m_Size{ size }, m_ByteSize{ size * sizeof(T) }, m_IsStatic{ isStatic }
         {
         }
 
@@ -29,7 +31,28 @@ namespace OSE {
 
         virtual ~GLBuffer() = default;
 
-        virtual void Write(const byte* data) = 0;
+        void Write(const byte* data, size_t length, size_t offset, bool discardAll)
+        {
+            if (offset == 0 && length == m_ByteSize)
+                WriteData(data);
+            else
+            {
+                if (discardAll)
+                    WriteData(nullptr);
+
+                WriteSubData(data, length, offset);
+            }
+        }
+
+        void Write(const T* data, size_t length, size_t offset = 0, bool discardAll = false)
+        {
+            Write(reinterpret_cast<const byte*>(data), length * sizeof(T), offset * sizeof(T), discardAll);
+        }
+
+        void Write(const std::vector<T>& data, size_t offset = 0, bool discardAll = false)
+        {
+            Write(&data[0], data.size(), offset, discardAll);
+        }
 
         inline size_t GetSize() const { return m_Size; }
         inline uint GetHandle() const { return m_Handle; }

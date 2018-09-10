@@ -34,7 +34,7 @@ void TestGame::OnLoad()
         OSE_DEBUG("Shader source: \n", shaderSrc);
     }
 
-    std::vector<float> positions1 =
+    float positions1[] =
     {
         -0.8f, -0.5f, 1.0f, 0.0f, 0.0f,
         -0.8f, 0.5f, 0.0f, 1.0f, 0.0f,
@@ -117,14 +117,14 @@ void TestGame::OnLoad()
     using VertAttrType = OSE::GLVertexAttribute::Type;
 
     shader = OSE::GLProgram::Create(shaderSrc);
-    triangleData1.vertices = std::make_unique<OSE::GLVertexBuffer>(4, triangleData1.desc.GetByteSize());
-    triangleData1.vertices->Write(reinterpret_cast<const OSE::byte*>(&positions1[0]));
+    triangleData1.vertices = std::make_unique<OSE::GLVertexBuffer>(20);
+    triangleData1.vertices->Write(positions1, 20);
 
-    triangleData1.indices = std::make_unique<OSE::GLIndexBuffer>(6);
-    triangleData1.indices->Write(reinterpret_cast<const OSE::byte*>(&indices1[0]));
+    triangleData1.indices = std::make_unique<OSE::GLIndexBuffer>(indices1.size());
+    triangleData1.indices->Write(indices1);
 
-    triangleData2.vertices = std::make_unique<OSE::GLVertexBuffer>(3, triangleData2.desc.GetByteSize());
-    triangleData2.vertices->Write(reinterpret_cast<const OSE::byte*>(&positions2[0]));
+    triangleData2.vertices = std::make_unique<OSE::GLVertexBuffer>(positions2.size());
+    triangleData2.vertices->Write(positions2);
     //triangleData2.shader = OSE::GLProgram::Create({ {ShaderType::Vertex, vertSource}, {ShaderType::Fragment, fragSource} });
     //PopulateTriangledata(triangleData2, position2, 3, indices2, 3);
 }
