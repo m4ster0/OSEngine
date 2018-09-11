@@ -34,11 +34,16 @@ namespace OSE {
             m_ImmediateContext->DestroySwapChain(handle);
     }
 
+    std::unique_ptr<ResourceCommandBuffer> GraphicsDevice::CreateResourceCommandBuffer()
+    {
+        return std::make_unique<ResourceCommandBuffer>(m_ImmediateContext);
+    }
+
     bool GraphicsDevice::Initialize()
     {
         if (m_ImmediateContext == nullptr || !m_ImmediateContext->IsValid())
         {
-            m_ImmediateContext = CreateContextInternal();
+            CreateContextInternal();
             return true;
         }
 

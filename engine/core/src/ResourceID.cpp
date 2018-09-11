@@ -4,14 +4,14 @@ namespace OSE {
 
     ResourceID ResourceID::Invalid;
 
-    ResourceID::ResourceID(size_t id) :
-        m_ID{ id }
+    ResourceID::ResourceID(size_t id, ResourceType type) :
+        m_ID{ id }, m_Type{ type }
     {
 
     }
 
     ResourceID::ResourceID():
-        ResourceID{ 0 }
+        ResourceID{ 0, ResourceType::None }
     {
 
     }

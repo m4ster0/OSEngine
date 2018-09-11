@@ -40,7 +40,8 @@ namespace OSE {
                 if (discardAll)
                     WriteData(nullptr);
 
-                WriteSubData(data, length, offset);
+                if(offset + length < m_ByteSize)
+                    WriteSubData(data, length, offset);
             }
         }
 

@@ -2,6 +2,7 @@
 
 #include "OSE/Graphics/GraphicsContext.h"
 #include "OSE/Graphics/ResourceID.h"
+#include "OSE/Graphics/ResourceCommandBuffer.h"
 #include "OSE/TypeDefs.h"
 
 #include <memory>
@@ -29,10 +30,12 @@ namespace OSE {
 
         void DestroySwapChain(ResourceID handle);
 
-    protected:
-        std::unique_ptr<GraphicsContext> m_ImmediateContext{ nullptr };
+        std::unique_ptr<ResourceCommandBuffer> CreateResourceCommandBuffer();
 
-        virtual std::unique_ptr<GraphicsContext> CreateContextInternal() = 0;
+    protected:
+        std::shared_ptr<GraphicsContext> m_ImmediateContext;
+
+        virtual void CreateContextInternal() = 0;
         virtual GraphicsAPI GetAPI() = 0;
 
     private:

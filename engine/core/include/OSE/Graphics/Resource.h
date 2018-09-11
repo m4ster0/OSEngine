@@ -3,25 +3,23 @@
 #include "OSE/Graphics/ResourceID.h"
 #include "OSE/TypeDefs.h"
 
-#include <atomic>
-
 namespace OSE {
-    template<typename T>
+
     class Resource
     {
-        static std::atomic<size_t> s_Counter;
-
-        ResourceID m_RID;
+        ResourceID m_RID{ };
     public:
-        Resource() : m_RID{ ++s_Counter }
-        {
-        }
+        Resource() = default;
 
-        virtual ~Resource()
-        {
-        };
+        Resource(const Resource&) = delete;
+        Resource& operator=(const Resource&) = delete;
 
-        virtual ResourceID GetRID() const
+        Resource(Resource&&) = delete;
+        Resource& operator=(Resource&&) = delete;
+
+        virtual ~Resource() = default;
+
+        ResourceID GetRID() const
         {
             return m_RID;
         }
@@ -29,6 +27,4 @@ namespace OSE {
         virtual void Dispose() = 0;
     };
 
-    template<typename T>
-    std::atomic<size_t> Resource<T>::s_Counter{ 0 };
 }
