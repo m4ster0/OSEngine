@@ -5,8 +5,9 @@ set(SRC_FILES
     ${SRC_DIR}/Vector3.cpp
     ${SRC_DIR}/Timer.cpp
     ${SRC_DIR}/Logger.cpp
-    ${SRC_DIR}/ResourceID.cpp
     ${SRC_DIR}/GraphicsDevice.cpp
+    ${SRC_DIR}/GraphicsResourceDescriptor.cpp
+    ${SRC_DIR}/GraphicsResourceProxy.cpp
     ${SRC_DIR}/Platform.cpp
     ${SRC_DIR}/File.cpp
     ${SRC_DIR}/FileDevice.cpp
@@ -59,7 +60,7 @@ add_library( oceansoul-core STATIC
              ${SRC_FILES}
              ${PLATFORM_SRC_FILES} )
 
-set_target_properties( oceansoul-core 
+set_target_properties( oceansoul-core
                        PROPERTIES
 		                   ARCHIVE_OUTPUT_NAME "oceansoul-core"
 		                   DEBUG_POSTFIX _d )
@@ -73,7 +74,7 @@ target_link_libraries( oceansoul-core
                        PUBLIC ${PLATFORM_LIBS}
                        PRIVATE ${PLATFORM_LIBS_PRIVATE} )
 
-target_compile_definitions( oceansoul-core 
+target_compile_definitions( oceansoul-core
                             PUBLIC $<$<CONFIG:DEBUG>:DEBUG_OSE> )
 
 # tests
@@ -83,11 +84,12 @@ if ( ose-cmake_BUILD_TESTS )
     set(TEST_SRC
             ${TEST_DIR}/MainTest.cpp
             ${TEST_DIR}/SignalTest.cpp
-            ${TEST_DIR}/EventBusTest.cpp )
+            ${TEST_DIR}/EventBusTest.cpp
+            ${TEST_DIR}/TimerTest.cpp )
 
     add_executable(oceansoul-core-tests ${TEST_SRC})
     target_include_directories(oceansoul-core-tests PRIVATE ${Boost_INCLUDE_DIRS})
-    target_link_libraries(oceansoul-core-tests PRIVATE 
+    target_link_libraries(oceansoul-core-tests PRIVATE
                             oceansoul-core
                             ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 

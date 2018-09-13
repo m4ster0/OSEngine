@@ -5,10 +5,11 @@ set( INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 set( SOURCES
    ${SRC_DIR}/GLDevice.cpp
+   ${SRC_DIR}/GLContext.cpp
    ${SRC_DIR}/GLProgram.cpp
-   ${SRC_DIR}/GLVertexDescriptor.cpp
-   ${SRC_DIR}/GLVertexBuffer.cpp
-   ${SRC_DIR}/GLIndexBuffer.cpp
+   ${SRC_DIR}/GLBuffer.cpp
+   ${SRC_DIR}/GLVertexLayout.cpp
+   ${SRC_DIR}/GLVertexArray.cpp
    ${SRC_DIR}/GLRenderer.cpp)
 
 set( PLATFORM_LIBRARIES )

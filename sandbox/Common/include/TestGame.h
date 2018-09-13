@@ -1,22 +1,31 @@
 #pragma once
 
-#include <OSE/Graphics/GLRenderer.h>
+#include <OSE/Graphics/ResourceID.h>
+#include <OSE/Graphics/GraphicsDevice.h>
+#include <OSE/Graphics/GraphicsRenderer.h>
+
 #include <OSE/Game.h>
 #include <OSE/TypeDefs.h>
 
 #include <memory>
 
-struct TriangleData
+struct Material
 {
-    OSE::GLVertexDescriptor desc{ {{ OSE::GLVertexAttribute::Type::Position, 2 }, { OSE::GLVertexAttribute::Type::Color, 3 }} };
-    std::unique_ptr<OSE::GLVertexBuffer> vertices;
-    std::unique_ptr<OSE::GLIndexBuffer> indices;
+    OSE::ProgramHandle program;
 };
 
+struct Mesh
+{
+    OSE::VertexLayoutHandle layout;
+    OSE::BufferHandle vertexBuffer;
+    OSE::BufferHandle indexBuffer;
+};
 class TestGame : public OSE::Game
 {
+
 public:
     TestGame();
+
     ~TestGame();
 
     virtual void OnStart() override;
@@ -30,12 +39,9 @@ public:
     virtual void OnRender(const OSE::GameTime& gameTime) override;
 
 private:
-    std::unique_ptr<OSE::GLRenderer> renderer{ nullptr };
+    std::unique_ptr<OSE::GraphicsRenderer> renderer{ nullptr };
 
-    //material
-    //textures
-    std::unique_ptr<OSE::GLProgram> shader{ nullptr };
-    //material end
-    TriangleData triangleData1;
-    TriangleData triangleData2;
+    Material material;
+    Mesh triangle1;
+    Mesh triangle2;
 };

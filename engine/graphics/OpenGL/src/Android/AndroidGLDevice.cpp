@@ -3,9 +3,9 @@
 
 namespace OSE {
 
-    void GLDevice::CreateContextInternal()
+    void GLDevice::InitializeInternal()
     {
-        m_ImmediateContext = std::shared_ptr<GraphicsContext>{ new AndroidGLContext };
+        m_ImmediateContext = std::unique_ptr<GraphicsContext>{ new AndroidGLContext };
     }
 
 }

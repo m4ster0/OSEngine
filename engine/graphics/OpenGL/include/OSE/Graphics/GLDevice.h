@@ -6,8 +6,10 @@ namespace OSE {
 
     class GLDevice : public GraphicsDevice
     {
+    public:
+        std::unique_ptr<GraphicsRenderer> CreateRenderer() override;
     protected:
-        virtual void CreateContextInternal() override;
+        virtual void InitializeInternal() override;
         virtual GraphicsAPI GetAPI() override;
     };
 

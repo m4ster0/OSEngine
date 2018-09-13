@@ -9,7 +9,7 @@ namespace OSE {
 
     struct Event
     {
-        virtual ~Event() {  };
+        virtual ~Event() = default;
     };
 
 }

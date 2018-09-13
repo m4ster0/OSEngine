@@ -7,53 +7,57 @@
 
 namespace OSE {
 
+    using SwapChainHandle = size_t;
+
     enum class ResourceType: byte
     {
-        None = 0,
-        Swapchain,
         Program,
         VertexLayout,
-        VertexBuffer,
-        IndexBuffer,
+        Buffer,
         Texture
     };
 
+    template<ResourceType RT>
     class ResourceID
     {
-        size_t m_ID;
-        ResourceType m_Type;
+        int32 m_ID;
 
     public:
         static ResourceID Invalid;
 
-
         struct Hasher
         {
-            std::size_t operator()(const ResourceID& rid) const
+            std::size_t operator()(const ResourceID<RT>& rid) const
             {
                 return std::hash<size_t>()(rid.m_ID);
             }
         };
 
-        explicit ResourceID(size_t id, ResourceType type);
-        ResourceID();
+        ResourceID(int32 id) : m_ID{ id } { }
+        ResourceID(): ResourceID(-1) { }
 
-        bool operator==(const ResourceID& other) const;
-        bool operator!=(const ResourceID& other) const;
+        inline int32 GetID() const { return m_ID; }
+
+        bool operator==(const ResourceID<RT>& other) const
+        {
+            return m_ID == other.m_ID;
+        }
+
+        bool operator!=(const ResourceID<RT>& other) const
+        {
+            return !(*this == other);
+        }
 
         explicit operator bool() const
         {
-            return static_cast<byte>(m_Type) > 0 && m_ID > 0;
+            return m_ID >= 0;
         }
     };
 
-    template<ResourceType type>
-    struct RIDCounter
-    {
-        static std::atomic<size_t> Counter;
-    };
+    using ProgramHandle = ResourceID<ResourceType::Program>;
+    using VertexLayoutHandle = ResourceID<ResourceType::VertexLayout>;
+    using BufferHandle = ResourceID<ResourceType::Buffer>;
 
-    template<typename T>
-    std::atomic<size_t> RIDCounter<T>::Counter{ 0 };
-
+    template<ResourceType RT>
+    ResourceID<RT> ResourceID<RT>::Invalid;
 }

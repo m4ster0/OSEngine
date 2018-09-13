@@ -70,39 +70,41 @@ namespace OSE {
         return m_HRC != NULL;
     }
 
-    ResourceID Win32GLContext::CreateSwapChain(void* windowHandle)
+    SwapChainHandle Win32GLContext::CreateSwapChain(void* windowHandle)
     {
+        static SwapChainHandle Counter{ 0 };
+
         HWND handle = (HWND)windowHandle;
 
         std::unique_ptr<Win32GLSwapChain> swapChain{ new Win32GLSwapChain };
         swapChain->windowHandle = handle;
         swapChain->windowDC = GetDC(handle);
 
-        ResourceID rid = ResourceID::Invalid;
+        SwapChainHandle rid = 0;
         if (SetPixelFormat(swapChain->windowDC, m_PixelFormat, &m_PixelFormatDescriptor))
         {
-            rid = swapChain->GetRID();
+            rid = ++Counter;
             m_SwapChains[rid] = std::move(swapChain);
         }
 
         return rid;
     }
 
-    void Win32GLContext::DestroySwapChain(ResourceID handle)
+    void Win32GLContext::DestroySwapChain(SwapChainHandle handle)
     {
         if (m_SwapChains.find(handle) != m_SwapChains.end())
         {
             if (handle == m_ActiveSwapChain)
             {
                 wglMakeCurrent(NULL, NULL);
-                m_ActiveSwapChain = ResourceID::Invalid;
+                m_ActiveSwapChain = 0;
             }
 
             m_SwapChains.erase(handle);
         }
     }
 
-    bool Win32GLContext::MakeCurrent(ResourceID handle)
+    bool Win32GLContext::MakeCurrent(SwapChainHandle handle)
     {
         if (handle)
         {
@@ -119,7 +121,7 @@ namespace OSE {
         return false;
     }
 
-    bool Win32GLContext::Present(ResourceID handle)
+    bool Win32GLContext::Present(SwapChainHandle handle)
     {
         if (handle && handle == m_ActiveSwapChain)
         {
@@ -127,5 +129,11 @@ namespace OSE {
         }
 
         return false;
+    }
+
+    void Win32GLContext::Terminate()
+    {
+        GLContext::Terminate();
+        m_SwapChains.clear();
     }
 }

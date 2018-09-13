@@ -30,8 +30,8 @@ namespace OSE {
             if (!InternalUpdate() || m_ShouldClose) //exit signal from game dispatched potentially
             {
                 m_Game->OnExit();
-                OnWindowDestroy();
                 m_GraphicsDevice->Terminate(); //destroying all graphics resources
+                //OnWindowDestroy();
                 return 0;
             }
 

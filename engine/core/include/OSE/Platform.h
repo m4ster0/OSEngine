@@ -32,11 +32,11 @@ namespace OSE {
 
 		Platform(std::unique_ptr<Game> game, std::unique_ptr<GraphicsDevice> graphicsDevice);
 		~Platform();
-		
+
 		int Run();
 
         inline GraphicsDevice& GetGraphicsDevice() const { return *m_GraphicsDevice; }
-        inline ResourceID GetWindowSCHandle() const { return m_WindowSCHandle; }
+        inline SwapChainHandle GetWindowSCHandle() const { return m_WindowSCHandle; }
         //inline Input GetInput() const { return *m_Input; }
 
         inline EventBus& GetEventBus() { return m_EventBus; }
@@ -53,7 +53,7 @@ namespace OSE {
         WindowProperties m_WindowProperties;
 
         std::unique_ptr<GraphicsDevice> m_GraphicsDevice{ nullptr };
-        ResourceID m_WindowSCHandle;
+        SwapChainHandle m_WindowSCHandle;
 
         EventBus m_EventBus;
         Timer m_Timer;
@@ -65,7 +65,7 @@ namespace OSE {
         void OnWindowDestroy();
         void OnResume();
         void OnPause();
-        
+
         friend bool handlePlatformCommands(const PlatformCommands& cmds);
 	};
 

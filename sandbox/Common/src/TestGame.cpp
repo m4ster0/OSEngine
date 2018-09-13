@@ -1,7 +1,8 @@
 #include "TestGame.h"
 
 #include <OSE/Platform.h>
-#include <OSE/Graphics/GraphicsDevice.h>
+#include <OSE/Graphics/GraphicsResourceProxy.h>
+#include <OSE/Graphics/GraphicsResourceDescriptor.h>
 #include <OSE/Graphics/GLCommon.h>
 #include <OSE/Log.h>
 #include <OSE/TypeDefs.h>
@@ -11,6 +12,22 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+
+static void PopulateMesh(OSE::GraphicsResourceProxy& proxy, Mesh& mesh,
+    float* vertices, size_t vertSize,
+    OSE::uint16* indices = nullptr, size_t indicesSize = 0)
+{
+    OSE::BufferDescriptor vertexBufferDesc = { vertSize * sizeof(float), vertSize, true };
+    OSE::BufferDataDescriptor vertexBufferDataDesc = { reinterpret_cast<const OSE::byte*>(vertices), vertSize * sizeof(float) };
+    mesh.vertexBuffer = proxy.CreateBuffer(OSE::BufferType::Vertex, vertexBufferDesc, &vertexBufferDataDesc);
+
+    if (indices && indicesSize)
+    {
+        OSE::BufferDescriptor indexBufferDesc = { indicesSize * sizeof(OSE::uint16), indicesSize, true };
+        OSE::BufferDataDescriptor indexBufferDataDesc = { reinterpret_cast<const OSE::byte*>(indices), indicesSize * sizeof(OSE::uint16) };
+        mesh.indexBuffer = proxy.CreateBuffer(OSE::BufferType::Index, indexBufferDesc, &indexBufferDataDesc);
+    }
+}
 
 TestGame::TestGame() {}
 TestGame::~TestGame() {}
@@ -34,6 +51,41 @@ void TestGame::OnLoad()
         OSE_DEBUG("Shader source: \n", shaderSrc);
     }
 
+
+
+#ifdef WIN32
+#else
+    std::string vertSource = R"vert(
+        attribute vec4 vPosition;
+
+        void main()
+        {
+            gl_Position = vPosition;
+        }
+    )vert";
+#endif
+
+#ifdef WIN32
+#else
+    std::string fragSource = R"frag(
+        precision mediump float;
+
+        void main()
+        {
+            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        }
+    )frag";
+#endif
+
+    std::unique_ptr<OSE::GraphicsResourceProxy> resProxy = OSE::Platform::Instance().GetGraphicsDevice().CreateResourceProxy();
+
+    OSE_DEBUG("Creating shader....");
+    std::vector<OSE::ShaderDescriptor> shaderDescs = OSE::shaderDescriptorsFromSource(shaderSrc);
+    OSE::ProgramHandle programHandle = resProxy->CreateProgram(shaderDescs);
+    OSE_DEBUG("Shader created.");
+
+    material.program = programHandle;
+
     float positions1[] =
     {
         -0.8f, -0.5f, 1.0f, 0.0f, 0.0f,
@@ -41,6 +93,8 @@ void TestGame::OnLoad()
         -0.2f, -0.5f, 0.0f, 0.0f, 1.0f,
         -0.2f, 0.5f, 0.0f, 1.0f, 1.0f
     };
+
+    constexpr size_t positions1Count = sizeof(positions1) / sizeof(positions1[0]);
 
     std::vector<float> positions2 =
     {
@@ -60,81 +114,54 @@ void TestGame::OnLoad()
         0, 1, 2
     };
 
-#ifdef WIN32
-    std::string vertSource = R"vert(
-        #version 330 core
-        in vec2 aPosition;
-        in vec3 aColor;
+    std::vector<OSE::VertexAttributeDescriptor> attrDescs = { {OSE::VertexAttrType::Position, 2}, {OSE::VertexAttrType::Color, 3} };
+    OSE::VertexLayoutHandle vertLayout = resProxy->CreateVertexLayout(attrDescs);
 
-        out vec3 vColor;
+    triangle1.layout = vertLayout;
+    PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
 
-        void main()
-        {
-            vColor = aColor;
-            gl_Position = vec4(aPosition, 0, 1.0);
-        }
-    )vert";
-#else
-    std::string vertSource = R"vert(
-        attribute vec4 vPosition;
+    triangle2.layout = vertLayout;
+    PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
 
-        void main()
-        {
-            gl_Position = vPosition;
-        }
-    )vert";
-#endif
+    renderer = OSE::Platform::Instance().GetGraphicsDevice().CreateRenderer();
 
-#ifdef WIN32
-    std::string fragSource = R"frag(
-        #version 330 core
-        out vec4 outColor;
+    renderer->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
 
-        in vec3 vColor;
 
-        void main()
-        {
-            outColor = vec4(vColor, 1.0f);
-        }
-    )frag";
-#else
-    std::string fragSource = R"frag(
-        precision mediump float;
+    //Material
+    //shader
 
-        void main()
-        {
-            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-        }
-    )frag";
-#endif
+    //At frame
+    //ResourceCommandBuffer resBuffer = GraphicsDevice()->CreateResourceCommandBuffer();
 
-    renderer = std::make_unique<OSE::GLRenderer>();
+    //CreateProgram& command = resBuffer->CreateCommand<CreateProgram>();
+    //rid = resBuffer->CreateProgram(shaderDescriptors);
+    //resBuffer->UpdateProgram(rid, someUniformDescriptor); //global uniforms
 
-    OSE_DEBUG("Creating shader....");
-    OSE_DEBUG("Shader created.");
+    //rid = resBuffer->CreateBuffer(VertexBuffer, size, usage);
+    //resBuffer->UpdateBuffer(rid, vector<float> data, 0, false);
 
-    using ShaderType = OSE::GLShaderDescriptor::Type;
-    using VertAttrType = OSE::GLVertexAttribute::Type;
+    //Before drawing
+    //GraphicsDevice()->Submit(resBuffer); //after this call resBuffer is invalid
 
-    shader = OSE::GLProgram::Create(shaderSrc);
-    triangleData1.vertices = std::make_unique<OSE::GLVertexBuffer>(20);
-    triangleData1.vertices->Write(positions1, 20);
+    //RenderCommandBuffer renderCmdBuffer = GraphicsDevice()->CreateRenderCommandBuffer();
 
-    triangleData1.indices = std::make_unique<OSE::GLIndexBuffer>(indices1.size());
-    triangleData1.indices->Write(indices1);
+    //DrawCall& call = renderCmdBuffer->CreateDrawCall(shaderRID, primitive, layout, vboRID);
+    //call.programUniforms = drawSpecificUniforms;
+    //call.blendFunction = funcOverrideingDefaultForThisCall;
+    //renderCmdBuffer->Queue(call); //sorted internally
+    //renderCmdBuffer->Sort();
+    //GraphicsDevice()->Flush(renderCmdBuffer);
 
-    triangleData2.vertices = std::make_unique<OSE::GLVertexBuffer>(positions2.size());
-    triangleData2.vertices->Write(positions2);
-    //triangleData2.shader = OSE::GLProgram::Create({ {ShaderType::Vertex, vertSource}, {ShaderType::Fragment, fragSource} });
-    //PopulateTriangledata(triangleData2, position2, 3, indices2, 3);
+    //renderer = std::make_unique<OSE::GLRenderer>();
 }
 
 void TestGame::OnExit()
 {
-    shader = nullptr;
+    //shader = nullptr;
 
-    triangleData1.vertices = nullptr;
-    triangleData1.indices = nullptr;
+    //triangleData1.vertices = nullptr;
+    //triangleData1.indices = nullptr;
     //triangleData2.shader = nullptr;
 }
 
@@ -151,11 +178,27 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderer->render(*shader,
-        OSE::RenderPrimitive::Triangles,
-        triangleData1.desc, *triangleData1.vertices, *triangleData1.indices);
+    ////bind material
+    ////set global uniforms and textures
+    //float correction1 = (sin(gameTime.total.Seconds() * 2.0) / 2.0) + 0.5;
+    //float correction2 = (sin(gameTime.total.Seconds()) / 2.0) + 0.5;
+    //shader->Use();
+    renderer->BindProgram(material.program);
 
-    renderer->render(*shader,
-        OSE::RenderPrimitive::Triangles,
-        triangleData2.desc, *triangleData2.vertices);
+    renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
+        triangle1.vertexBuffer, triangle1.indexBuffer);
+
+    renderer->Draw(triangle2.layout, OSE::RenderPrimitive::Triangles,
+        triangle2.vertexBuffer, triangle2.indexBuffer);
+    ////bind object
+    ////set local uniforms
+    //shader->SetUniform1("colorCorrection", correction1);
+    //renderer->draw(*shader,
+    //    OSE::RenderPrimitive::Triangles,
+    //    triangleData1.desc, triangleData1.vertices, triangleData1.indices);
+
+    //shader->SetUniform1("colorCorrection", correction2);
+    //renderer->draw(*shader,
+    //    OSE::RenderPrimitive::Triangles,
+    //    triangleData2.desc, triangleData2.vertices);
 }

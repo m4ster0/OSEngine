@@ -1,6 +1,7 @@
 #pragma once
 
-#include <OSE/Graphics/Resource.h>
+#include <OSE/Graphics/GraphicsResource.h>
+#include <OSE/Graphics/GraphicsResourceDescriptor.h>
 #include <OSE/TypeDefs.h>
 
 #include <memory>
@@ -8,47 +9,26 @@
 #include <vector>
 
 namespace OSE {
-    struct GLShaderDescriptor
-    {
-        enum class Type
-        {
-            Vertex,
-            Fragment
-        };
 
-        Type type;
-        std::string src;
-    };
-
-    class GLProgram : public Resource<GLProgram>
+    class GLProgram : public GraphicsResource<ResourceType::Program>
     {
         uint m_Handle{ 0 };
 
     public:
-        static std::unique_ptr<GLProgram> Create(const std::vector<GLShaderDescriptor>& descs);
-        static std::unique_ptr<GLProgram> Create(const std::string& vertSrc, const std::string& fragSrc);
-        static std::unique_ptr<GLProgram> Create(const std::string& singleSrc);
+        static std::unique_ptr<GLProgram> Create(const std::vector<ShaderDescriptor>& descs);
 
+        GLProgram();
         ~GLProgram();
 
-        GLProgram(const GLProgram& other) = delete;
-        GLProgram(GLProgram&& other) = delete;
-
-        GLProgram& operator=(const GLProgram& other) = delete;
-        GLProgram& operator=(GLProgram&& other) = delete;
-
+        void Bind() const;
         uint GetAttributeLocation(const std::string& name) const;
-        inline uint GetHandle() const { return m_Handle; }
-
-        //TODO add uniform handling
         uint GetUniformLocation(const std::string& name) const;
 
-        //template<typename T>
-        //void SetUniform(const std::string& name, T value);
+        //uniform setters
+        //void SetUniform1(const std::string& name, int value) const;
+        //void SetUniform1(const std::string& name, float value) const;
 
         void Dispose() override;
 
-    private:
-        GLProgram();
     };
 }

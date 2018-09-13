@@ -4,15 +4,15 @@
 
 namespace OSE {
 
-    ResourceID GraphicsDevice::CreateSwapChain(void* windowHandle)
+    SwapChainHandle GraphicsDevice::CreateSwapChain(void* windowHandle)
     {
         if (m_ImmediateContext && m_ImmediateContext->IsValid())
             return m_ImmediateContext->CreateSwapChain(windowHandle);
 
-        return ResourceID::Invalid;
+        return 0;
     }
 
-    bool GraphicsDevice::MakeCurrent(ResourceID handle)
+    bool GraphicsDevice::MakeCurrent(SwapChainHandle handle)
     {
         if (m_ImmediateContext && m_ImmediateContext->IsValid())
             return m_ImmediateContext->MakeCurrent(handle);
@@ -20,7 +20,7 @@ namespace OSE {
         return false;
     }
 
-    bool GraphicsDevice::Present(ResourceID handle)
+    bool GraphicsDevice::Present(SwapChainHandle handle)
     {
         if (m_ImmediateContext && m_ImmediateContext->IsValid())
             return m_ImmediateContext->Present(handle);
@@ -28,22 +28,23 @@ namespace OSE {
         return false;
     }
 
-    void GraphicsDevice::DestroySwapChain(ResourceID handle)
+    void GraphicsDevice::DestroySwapChain(SwapChainHandle handle)
     {
         if (m_ImmediateContext && m_ImmediateContext->IsValid())
             m_ImmediateContext->DestroySwapChain(handle);
     }
 
-    std::unique_ptr<ResourceCommandBuffer> GraphicsDevice::CreateResourceCommandBuffer()
+    std::unique_ptr<GraphicsResourceProxy> GraphicsDevice::CreateResourceProxy()
     {
-        return std::make_unique<ResourceCommandBuffer>(m_ImmediateContext);
+        return std::unique_ptr<GraphicsResourceProxy>{ new GraphicsResourceProxy{ m_ImmediateContext.get() } };
     }
 
     bool GraphicsDevice::Initialize()
     {
         if (m_ImmediateContext == nullptr || !m_ImmediateContext->IsValid())
         {
-            CreateContextInternal();
+            Terminate();
+            InitializeInternal();
             return true;
         }
 
@@ -52,6 +53,9 @@ namespace OSE {
 
     void GraphicsDevice::Terminate()
     {
+        if (m_ImmediateContext)
+            m_ImmediateContext->Terminate();
+
         m_ImmediateContext = nullptr;
     }
 }

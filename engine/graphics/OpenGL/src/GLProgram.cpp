@@ -1,13 +1,11 @@
 #include "OSE/Graphics/GLProgram.h"
-#include "OSE/Graphics/GLVertexDescriptor.h"
 #include "OSE/Graphics/GLCommon.h"
 
 #include <OSE/Log.h>
 
 namespace OSE {
-    using ShaderType = GLShaderDescriptor::Type;
 
-    uint GetShaderGLType(ShaderType type)
+    static uint GetShaderGLType(ShaderType type)
     {
         switch (type)
         {
@@ -20,19 +18,9 @@ namespace OSE {
         return 0;
     }
 
-    std::string GetShaderName(ShaderType type)
-    {
-        static std::unordered_map<ShaderType, std::string> typeNames = {
-            { ShaderType::Vertex, "vertex"},
-            { ShaderType::Fragment, "fragment" }
-        };
-
-        return typeNames[type];
-    }
-
     struct GLShader
     {
-        static std::unique_ptr<GLShader> Create(const GLShaderDescriptor& desc)
+        static std::unique_ptr<GLShader> Create(const ShaderDescriptor& desc)
         {
             uint glType{ GetShaderGLType(desc.type) };
             const char* cStr{ desc.src.c_str() };
@@ -76,7 +64,7 @@ namespace OSE {
         }
     };
 
-    std::unique_ptr<GLProgram> GLProgram::Create(const std::vector<GLShaderDescriptor>& shaderDescs)
+    std::unique_ptr<GLProgram> GLProgram::Create(const std::vector<ShaderDescriptor>& shaderDescs)
     {
         std::unique_ptr<GLProgram> program{ new GLProgram };
 
@@ -91,7 +79,7 @@ namespace OSE {
             }
         }
 
-        const std::unordered_map<GLVertexAttribute::Type, std::string>& attrTypes = GLVertexAttribute::TypeName;
+        const std::unordered_map<VertexAttrType, std::string>& attrTypes = VertexAttributeDescriptor::TypeName;
         for (auto it = attrTypes.begin(); it != attrTypes.end(); ++it)
         {
             uint location{ static_cast<uint>(it->first) }; //VertexAttribute::Type enum value corresponds to location in shader
@@ -118,30 +106,6 @@ namespace OSE {
         return program;
     }
 
-    std::unique_ptr<GLProgram> GLProgram::Create(const std::string& vertSrc, const std::string& fragSrc)
-    {
-        return Create({ {ShaderType::Vertex, vertSrc}, {ShaderType::Fragment, fragSrc} });
-    }
-
-    std::unique_ptr<GLProgram> GLProgram::Create(const std::string& singleSrc)
-    {
-        std::function<GLShaderDescriptor(ShaderType)> getShaderDesc = [&singleSrc](ShaderType type) -> GLShaderDescriptor {
-            static const std::string tag{ "%%" };
-
-            std::string shaderTag{ tag + GetShaderName(type) };
-            std::string::size_type start{ singleSrc.find(shaderTag) };
-            std::size_t startPos = start + shaderTag.length();
-
-            std::string::size_type end{ 0 };
-            if (start != std::string::npos && (end = singleSrc.find(shaderTag, startPos)))
-                return { type, singleSrc.substr(startPos, end - startPos) };
-
-            return { type, "" };
-        };
-
-        return Create({ getShaderDesc(ShaderType::Vertex), getShaderDesc(ShaderType::Fragment) });
-    }
-
     GLProgram::GLProgram()
     {
         m_Handle = glCreateProgram();
@@ -152,15 +116,30 @@ namespace OSE {
         Dispose();
     }
 
+    void GLProgram::Bind() const
+    {
+        GLCall(glUseProgram(m_Handle));
+    }
+
     uint GLProgram::GetAttributeLocation(const std::string& name) const
     {
         return glGetAttribLocation(m_Handle, name.c_str());
     }
 
-    uint OSE::GLProgram::GetUniformLocation(const std::string& name) const
+    uint GLProgram::GetUniformLocation(const std::string& name) const
     {
         return glGetUniformLocation(m_Handle, name.c_str());
     }
+
+    //void GLProgram::SetUniform1(const std::string& name, int value) const
+    //{
+    //    GLCall(glUniform1i(GetUniformLocation(name), value));
+    //}
+
+    //void GLProgram::SetUniform1(const std::string& name, float value) const
+    //{
+    //    GLCall(glUniform1f(GetUniformLocation(name), value));
+    //}
 
     void GLProgram::Dispose()
     {

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "OSE/Graphics/GraphicsContext.h"
+#include "OSE/Graphics/GraphicsResourceProxy.h"
+#include "OSE/Graphics/GraphicsRenderer.h"
 #include "OSE/Graphics/ResourceID.h"
-#include "OSE/Graphics/ResourceCommandBuffer.h"
+
 #include "OSE/TypeDefs.h"
 
 #include <memory>
@@ -23,19 +25,18 @@ namespace OSE {
     public:
         virtual ~GraphicsDevice() = default;
 
-        ResourceID CreateSwapChain(void* windowHandle);
+        SwapChainHandle CreateSwapChain(void* windowHandle);
+        bool MakeCurrent(SwapChainHandle handle);
+        bool Present(SwapChainHandle handle);
+        void DestroySwapChain(SwapChainHandle handle);
 
-        bool MakeCurrent(ResourceID handle);
-        bool Present(ResourceID handle);
-
-        void DestroySwapChain(ResourceID handle);
-
-        std::unique_ptr<ResourceCommandBuffer> CreateResourceCommandBuffer();
+        std::unique_ptr<GraphicsResourceProxy> CreateResourceProxy();
+        virtual std::unique_ptr<GraphicsRenderer> CreateRenderer() = 0;
 
     protected:
-        std::shared_ptr<GraphicsContext> m_ImmediateContext;
+        std::unique_ptr<GraphicsContext> m_ImmediateContext;
 
-        virtual void CreateContextInternal() = 0;
+        virtual void InitializeInternal() = 0;
         virtual GraphicsAPI GetAPI() = 0;
 
     private:

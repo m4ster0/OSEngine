@@ -1,39 +1,39 @@
 #pragma once
 
-#include "OSE/Graphics/GLProgram.h"
-#include "OSE/Graphics/GLVertexDescriptor.h"
-#include "OSE/Graphics/GLVertexBuffer.h"
-#include "OSE/Graphics/GLIndexBuffer.h"
-#include "OSE/Graphics/GLCommon.h"
-
+#include <OSE/Graphics/GraphicsRenderer.h>
 #include <OSE/TypeDefs.h>
 
+#include "OSE/Graphics/GLContext.h"
+
+#include <memory>
+
 namespace OSE {
-    enum class RenderPrimitive : uint
+    class GLRenderer: public GraphicsRenderer
     {
-        Points = GL_POINTS,
-        Lines = GL_LINES,
-        LineStrip = GL_LINE_STRIP,
-        Triangles = GL_TRIANGLES,
-        TriangleStrip = GL_TRIANGLE_STRIP,
-        TriangleFan = GL_TRIANGLE_FAN
-    };
+        friend class GLDevice;
 
-    class GLRenderer
-    {
-        //properties state cache
+        //state cache
+        const GLContext* m_Context;
+        GLRenderer(const GLContext* context);
 
+        //void OnContextLoss();
     public:
-        //draw calls
-        void render(const GLProgram& program,
-            RenderPrimitive primitive,
-            const GLVertexDescriptor& vertexDescriptor,
-            const GLVertexBuffer& vertBuffer);
+        ~GLRenderer();
 
-        void render(const GLProgram& program,
-            RenderPrimitive primitive,
-            const GLVertexDescriptor& vertexDescriptor,
-            const GLVertexBuffer& vertBuffer,
-            const GLIndexBuffer& indexBuffer);
+        void BindProgram(ProgramHandle handle) override;
+        //uniforms binding todo
+
+        void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer) override;
+        void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer) override;
+
+        void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,
+            BufferHandle vertexBuffer, BufferHandle indexBuffer,
+            size_t vertexCount = 0, size_t startVertex = 0) override;
+
+        void DrawIndexed(VertexLayoutHandle layout, RenderPrimitive primitive,
+            BufferHandle vertexBuffer, BufferHandle indexBuffer,
+            size_t indexCount = 0, size_t startIndex = 0) override;
+
+        void UpdateBuffer(BufferHandle handle, BufferDescriptor::Type type, const BufferDataDescriptor& data) override;
     };
 }
