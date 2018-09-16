@@ -38,12 +38,8 @@ namespace OSE {
     {
         if (vbo.rid && (ibo == nullptr || ibo->rid))
         {
-            int64 handle = vbo.rid.GetID();
-            if (ibo)
-            {
-                int64 iboHandle = ibo->rid.GetID();
-                handle = (iboHandle << 32) | handle;
-            }
+            int64 handle = vbo.rid;
+            if (ibo) handle |= (static_cast<int64>(ibo->rid) << 32);
 
             return handle;
         }

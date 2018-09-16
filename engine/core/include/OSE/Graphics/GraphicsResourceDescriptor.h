@@ -1,5 +1,6 @@
 #pragma once
 
+#include "OSE/Graphics/ResourceID.h"
 #include "OSE/TypeDefs.h"
 
 #include <string>
@@ -18,6 +19,12 @@ namespace OSE {
 
         Type type;
         std::string src;
+    };
+
+    struct ProgramUniform
+    {
+        ProgramHandle program;
+        std::string name;
     };
 
     std::vector<ShaderDescriptor> shaderDescriptorsFromSources(const std::string& vertSrc, const std::string& fragSrc);
@@ -62,7 +69,30 @@ namespace OSE {
         bool isStatic;
     };
 
+    struct TextureDescriptor
+    {
+        enum class Wrap : byte
+        {
+            Repeat,
+            MirrorRepeat,
+            EdgeClamp,
+            BorderClamp
+        };
+
+        enum class Filter : byte
+        {
+            Nearest,
+            Linear
+        };
+
+        Wrap wrap{ Wrap::Repeat };
+        Filter minifyFilter{ Filter::Nearest };
+        Filter magnifyFilter{ Filter::Nearest };
+    };
+
     using ShaderType = ShaderDescriptor::Type;
     using VertexAttrType = VertexAttributeDescriptor::Type;
     using BufferType = BufferDescriptor::Type;
+    using TexWrapType = TextureDescriptor::Wrap;
+    using TexFilterType = TextureDescriptor::Filter;
 }

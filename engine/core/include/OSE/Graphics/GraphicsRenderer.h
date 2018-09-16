@@ -1,8 +1,10 @@
 #pragma once
 
-#include "OSE/Graphics/GraphicsContext.h"
+#include "OSE/Graphics/GraphicsResourceDescriptor.h"
 #include "OSE/Graphics/ResourceID.h"
 #include "OSE/TypeDefs.h"
+
+#include <string>
 
 namespace OSE {
 
@@ -16,14 +18,16 @@ namespace OSE {
     class GraphicsRenderer
     {
     public:
-        virtual void BindProgram(ProgramHandle handle) = 0;
-        //uniforms binding todo
+        virtual ~GraphicsRenderer() = default;
 
-        virtual void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer) = 0;
-        virtual void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer) = 0;
+        virtual void BindProgram(ProgramHandle handle) = 0;
+        //virtual bool BindProgramUniformi(const ProgramUniform& uniform, int value) = 0;
+        //virtual bool BindProgramUniformTexSampler2D(const ProgramUniform& uniform, int value) = 0;
+        //virtual bool BindProgramUniformiv(const ProgramUniform& uniform, int* values, size_t count) = 0;
+        virtual void BindTexture(TextureHandle handle, uint slot = 0) = 0;
 
         virtual void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,
-                        BufferHandle vertexBuffer, BufferHandle indexBuffer,
+                        BufferHandle vertexBuffer,
                         size_t vertexCount = 0, size_t startVertex = 0) = 0;
 
         virtual void DrawIndexed(VertexLayoutHandle layout, RenderPrimitive primitive,

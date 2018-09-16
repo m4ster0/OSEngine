@@ -2,8 +2,6 @@
 
 #include "OSE/Graphics/GLContext.h"
 
-#include <OSE/Graphics/GraphicsResource.h>
-
 #include <unordered_map>
 #include <memory>
 
@@ -21,10 +19,7 @@ namespace OSE {
 
             Win32GLSwapChain() = default;
 
-            Win32GLSwapChain(const Win32GLSwapChain&) = delete;
             Win32GLSwapChain(Win32GLSwapChain&&) = delete;
-
-            Win32GLSwapChain& operator=(const Win32GLSwapChain&) = delete;
             Win32GLSwapChain& operator=(Win32GLSwapChain&&) = delete;
 
             ~Win32GLSwapChain()
@@ -44,19 +39,20 @@ namespace OSE {
         PIXELFORMATDESCRIPTOR m_PixelFormatDescriptor;
         int m_PixelFormat{ 0 };
 
+        SwapChainHandle m_ActiveSwapChain;
         std::unordered_map<SwapChainHandle, std::unique_ptr<Win32GLSwapChain>> m_SwapChains;
 
     public:
         ~Win32GLContext();
-        virtual bool IsValid() override;
+        bool IsValid() override;
 
-        virtual SwapChainHandle CreateSwapChain(void* windowHandle) override;
-        virtual void DestroySwapChain(SwapChainHandle handle) override;
+        SwapChainHandle CreateSwapChain(void* windowHandle) override;
+        void DestroySwapChain(SwapChainHandle handle) override;
 
-        virtual bool MakeCurrent(SwapChainHandle handle) override;
-        virtual bool Present(SwapChainHandle handle) override;
+        bool MakeCurrent(SwapChainHandle handle) override;
+        bool Present(SwapChainHandle handle) override;
 
-        virtual void Terminate() override;
+        void Dispose() override;
 
     protected:
         Win32GLContext();

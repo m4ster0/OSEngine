@@ -131,9 +131,9 @@ namespace OSE {
         return false;
     }
 
-    void Win32GLContext::Terminate()
+    void Win32GLContext::Dispose()
     {
-        GLContext::Terminate();
+        GLContext::Dispose();
         m_SwapChains.clear();
     }
 }

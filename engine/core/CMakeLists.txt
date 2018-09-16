@@ -5,10 +5,10 @@ set(SRC_FILES
     ${SRC_DIR}/Vector3.cpp
     ${SRC_DIR}/Timer.cpp
     ${SRC_DIR}/Logger.cpp
-    ${SRC_DIR}/GraphicsDevice.cpp
     ${SRC_DIR}/GraphicsResourceDescriptor.cpp
-    ${SRC_DIR}/GraphicsResourceProxy.cpp
     ${SRC_DIR}/Platform.cpp
+    ${SRC_DIR}/Image.cpp
+    ${SRC_DIR}/ImageFactory.cpp
     ${SRC_DIR}/File.cpp
     ${SRC_DIR}/FileDevice.cpp
     ${SRC_DIR}/FileSystem.cpp )

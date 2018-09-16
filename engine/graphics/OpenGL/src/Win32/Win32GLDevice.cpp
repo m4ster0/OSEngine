@@ -3,9 +3,9 @@
 
 namespace OSE {
 
-    void GLDevice::InitializeInternal()
+    void GLDevice::CreateContextInternal()
     {
-        m_ImmediateContext = std::unique_ptr<GraphicsContext>{ new Win32GLContext };
+        m_ImmediateContext = std::unique_ptr<GLContext>( new Win32GLContext() );
     }
 
 }

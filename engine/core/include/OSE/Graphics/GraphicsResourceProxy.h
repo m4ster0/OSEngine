@@ -1,7 +1,8 @@
 #pragma once
 
-#include "OSE/Graphics/GraphicsContext.h"
+#include "OSE/Graphics/GraphicsResourceDescriptor.h"
 #include "OSE/Graphics/ResourceID.h"
+#include "OSE/Resources/Image.h"
 
 #include <utility>
 
@@ -10,30 +11,23 @@ namespace OSE {
     //main thread access to graphics resources
     class GraphicsResourceProxy
     {
-        friend class GraphicsDevice;
-
-        GraphicsContext* m_Context;
-        GraphicsResourceProxy(GraphicsContext* context);
-
-        void OnContextLoss();
-
     public:
-        ~GraphicsResourceProxy();
+        virtual ~GraphicsResourceProxy() = default;
 
-        ProgramHandle CreateProgram(const std::vector<ShaderDescriptor>& shaderDescriptors);
-        BufferHandle CreateBuffer(BufferDescriptor::Type type, const BufferDescriptor& desc, BufferDataDescriptor* dataDesc = nullptr);
-        VertexLayoutHandle CreateVertexLayout(const std::vector<VertexAttributeDescriptor>& attributeDescriptors);
+        virtual ProgramHandle CreateProgram(const std::vector<ShaderDescriptor>& shaderDescriptors) = 0;
+        //virtual const ProgramUniform* GetProgramUniform(ProgramHandle handle, const std::string& name) = 0;
+        virtual void DisposeProgram(ProgramHandle handle) = 0;
 
-        inline bool IsValid() const { return m_Context != nullptr; }
+        virtual BufferHandle CreateBuffer(BufferDescriptor::Type type, const BufferDescriptor& desc, const BufferDataDescriptor* dataDesc = nullptr) = 0;
+        virtual void DisposeBuffer(BufferHandle handle) = 0;
 
-        template<ResourceType RT>
-        void Dispose(ResourceID<RT> rid);
+        virtual VertexLayoutHandle CreateVertexLayout(const std::vector<VertexAttributeDescriptor>& attributeDescriptors) = 0;
+        virtual void DisposeVertexLayout(VertexLayoutHandle handle) = 0;
+
+        virtual void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer) = 0;
+        virtual void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer) = 0;
+
+        virtual TextureHandle CreateTexture(const TextureDescriptor& desc, const Image* image = nullptr) = 0;
+        virtual void DisposeTexture(TextureHandle handle) = 0;
     };
-
-    template<ResourceType RT>
-    void GraphicsResourceProxy::Dispose(ResourceID<RT> rid)
-    {
-        if (m_Context)
-            m_Context->Dispose(rid);
-    }
 }

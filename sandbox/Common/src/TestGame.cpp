@@ -4,6 +4,7 @@
 #include <OSE/Graphics/GraphicsResourceProxy.h>
 #include <OSE/Graphics/GraphicsResourceDescriptor.h>
 #include <OSE/Graphics/GLCommon.h>
+#include <OSE/Resources/ImageFactory.h>
 #include <OSE/Log.h>
 #include <OSE/TypeDefs.h>
 #include <OSE/System/FileSystem.h>
@@ -12,6 +13,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+
+static OSE::uint texture0;
 
 static void PopulateMesh(OSE::GraphicsResourceProxy& proxy, Mesh& mesh,
     float* vertices, size_t vertSize,
@@ -86,21 +89,29 @@ void TestGame::OnLoad()
 
     material.program = programHandle;
 
+    std::unique_ptr<OSE::Image> image = OSE::ImageFactory::Decode(fileSystem, "assets", "Assets/Textures/container.jpg", { OSE::Image::Format::RGB, true });
+    if (image)
+    {
+        OSE::TextureDescriptor texDesc{};
+        material.tex0 = resProxy->CreateTexture(texDesc, image.get());
+        image->Dispose();
+    }
+
     float positions1[] =
     {
-        -0.8f, -0.5f, 1.0f, 0.0f, 0.0f,
-        -0.8f, 0.5f, 0.0f, 1.0f, 0.0f,
-        -0.2f, -0.5f, 0.0f, 0.0f, 1.0f,
-        -0.2f, 0.5f, 0.0f, 1.0f, 1.0f
+        -0.8f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -0.8f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.2f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        -0.2f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f
     };
 
     constexpr size_t positions1Count = sizeof(positions1) / sizeof(positions1[0]);
 
     std::vector<float> positions2 =
     {
-        0.2f, -0.5f, 0.0f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f,
-        0.8f, -0.5f, 0.0f, 1.0f, 0.0f
+        0.2f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
+        0.8f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f
     };
 
     std::vector<OSE::uint16> indices1 =
@@ -114,7 +125,7 @@ void TestGame::OnLoad()
         0, 1, 2
     };
 
-    std::vector<OSE::VertexAttributeDescriptor> attrDescs = { {OSE::VertexAttrType::Position, 2}, {OSE::VertexAttrType::Color, 3} };
+    std::vector<OSE::VertexAttributeDescriptor> attrDescs = { {OSE::VertexAttrType::Position, 2}, {OSE::VertexAttrType::Color, 3}, {OSE::VertexAttrType::TexCoord0, 2} };
     OSE::VertexLayoutHandle vertLayout = resProxy->CreateVertexLayout(attrDescs);
 
     triangle1.layout = vertLayout;
@@ -123,26 +134,23 @@ void TestGame::OnLoad()
     triangle2.layout = vertLayout;
     PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
 
+    resProxy->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
+
+
     renderer = OSE::Platform::Instance().GetGraphicsDevice().CreateRenderer();
 
-    renderer->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
+    //ImageLoader imgLoader{ fileSystem };
 
+    //TextureDescriptor
+    //{
+    //  format = RGB565, RGB888, RGBA8888 itp
+    //}
+    //Image someImg = imgLoader.load(device, path);
+    //promise<Image> someImg = imgLoader.loadAsync(device, path);
+    //TextureHandle handle = resProxy->CreateTexture(someImg, textureDescriptor);
 
     //Material
     //shader
-
-    //At frame
-    //ResourceCommandBuffer resBuffer = GraphicsDevice()->CreateResourceCommandBuffer();
-
-    //CreateProgram& command = resBuffer->CreateCommand<CreateProgram>();
-    //rid = resBuffer->CreateProgram(shaderDescriptors);
-    //resBuffer->UpdateProgram(rid, someUniformDescriptor); //global uniforms
-
-    //rid = resBuffer->CreateBuffer(VertexBuffer, size, usage);
-    //resBuffer->UpdateBuffer(rid, vector<float> data, 0, false);
-
-    //Before drawing
-    //GraphicsDevice()->Submit(resBuffer); //after this call resBuffer is invalid
 
     //RenderCommandBuffer renderCmdBuffer = GraphicsDevice()->CreateRenderCommandBuffer();
 
@@ -184,21 +192,11 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     //float correction2 = (sin(gameTime.total.Seconds()) / 2.0) + 0.5;
     //shader->Use();
     renderer->BindProgram(material.program);
+    renderer->BindTexture(material.tex0, 0);
 
     renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
         triangle1.vertexBuffer, triangle1.indexBuffer);
 
     renderer->Draw(triangle2.layout, OSE::RenderPrimitive::Triangles,
-        triangle2.vertexBuffer, triangle2.indexBuffer);
-    ////bind object
-    ////set local uniforms
-    //shader->SetUniform1("colorCorrection", correction1);
-    //renderer->draw(*shader,
-    //    OSE::RenderPrimitive::Triangles,
-    //    triangleData1.desc, triangleData1.vertices, triangleData1.indices);
-
-    //shader->SetUniform1("colorCorrection", correction2);
-    //renderer->draw(*shader,
-    //    OSE::RenderPrimitive::Triangles,
-    //    triangleData2.desc, triangleData2.vertices);
+        triangle2.vertexBuffer);
 }

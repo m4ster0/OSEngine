@@ -1,9 +1,9 @@
 #pragma once
 
+#include "OSE/Graphics/GLResource.h"
 #include "OSE/Graphics/GLVertexLayout.h"
 #include "OSE/Graphics/GLBuffer.h"
 
-#include <OSE/Graphics/GraphicsResource.h>
 #include <OSE/TypeDefs.h>
 
 #include <memory>
@@ -11,7 +11,7 @@
 
 namespace OSE {
 
-    class GLVertexArray : public GraphicsResource<ResourceType::VertexLayout>
+    class GLVertexArray : public GLResource
     {
         struct GLVertexArrayObject
         {
@@ -33,6 +33,10 @@ namespace OSE {
 
     public:
         GLVertexArray(const GLVertexLayout& layout);
+
+        GLVertexArray(GLVertexArray&&) = delete;
+        GLVertexArray& operator=(GLVertexArray&&) = delete;
+
         ~GLVertexArray();
 
         void MakeVAO(const GLBuffer& vbo);

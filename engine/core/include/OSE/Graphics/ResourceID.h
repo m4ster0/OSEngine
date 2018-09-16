@@ -7,8 +7,6 @@
 
 namespace OSE {
 
-    using SwapChainHandle = size_t;
-
     enum class ResourceType: byte
     {
         Program,
@@ -54,9 +52,11 @@ namespace OSE {
         }
     };
 
+    using SwapChainHandle = size_t;
     using ProgramHandle = ResourceID<ResourceType::Program>;
     using VertexLayoutHandle = ResourceID<ResourceType::VertexLayout>;
     using BufferHandle = ResourceID<ResourceType::Buffer>;
+    using TextureHandle = ResourceID<ResourceType::Texture>;
 
     template<ResourceType RT>
     ResourceID<RT> ResourceID<RT>::Invalid;

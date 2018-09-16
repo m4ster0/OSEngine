@@ -64,9 +64,9 @@ namespace OSE {
         }
     };
 
-    std::unique_ptr<GLProgram> GLProgram::Create(const std::vector<ShaderDescriptor>& shaderDescs)
+    GLProgram* GLProgram::Create(const std::vector<ShaderDescriptor>& shaderDescs)
     {
-        std::unique_ptr<GLProgram> program{ new GLProgram };
+        GLProgram* program{ new GLProgram };
 
         std::vector<std::unique_ptr<GLShader>> shaders;
         for (const auto& desc : shaderDescs)
@@ -98,7 +98,6 @@ namespace OSE {
             std::unique_ptr<char[]> message{ new char[length] };
             GLCall(glGetProgramInfoLog(program->m_Handle, length, &length, message.get()));
             OSE_ERROR("program linking failure: ", message.get());
-            return nullptr;
         }
 
         GLCall(glValidateProgram(program->m_Handle));
@@ -130,16 +129,6 @@ namespace OSE {
     {
         return glGetUniformLocation(m_Handle, name.c_str());
     }
-
-    //void GLProgram::SetUniform1(const std::string& name, int value) const
-    //{
-    //    GLCall(glUniform1i(GetUniformLocation(name), value));
-    //}
-
-    //void GLProgram::SetUniform1(const std::string& name, float value) const
-    //{
-    //    GLCall(glUniform1f(GetUniformLocation(name), value));
-    //}
 
     void GLProgram::Dispose()
     {

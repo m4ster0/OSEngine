@@ -11,6 +11,8 @@
 
 struct Material
 {
+    OSE::TextureHandle tex0;
+    OSE::TextureHandle tex1;
     OSE::ProgramHandle program;
 };
 

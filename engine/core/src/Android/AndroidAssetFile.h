@@ -15,12 +15,13 @@ namespace OSE {
         AndroidAssetFileSync(::AAsset* asset);
         ~AndroidAssetFileSync();
 
-        virtual size_t Read(byte* buffer, size_t length) override;
-        virtual size_t Write(const byte* buffer, size_t length) override;
+        size_t Read(byte* buffer, size_t length) override;
+        size_t Write(const byte* buffer, size_t length) override;
 
-        virtual bool Seek(size_t position) override;
-        virtual int64 Tell() override;
-        virtual size_t Length() override;
+        bool Seek(size_t position) override;
+        bool SeekCurrent(int64 offset) override;
+        int64 Tell() override;
+        size_t Length() override;
     };
 
 }

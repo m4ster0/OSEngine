@@ -16,11 +16,6 @@ namespace OSE {
         return 0;
     }
 
-    void GLBuffer::Unbind(const GLBuffer& buffer)
-    {
-        GLCall(glBindBuffer(buffer.m_GLType, 0));
-    }
-
     GLBuffer::GLBuffer(BufferType bType, size_t size, size_t byteSize, bool isStatic) :
         m_GLType{ GetGLBufferType(bType) }, m_Size{ size }, m_ByteSize{ byteSize }, m_IsStatic{ isStatic }
     {
@@ -29,7 +24,6 @@ namespace OSE {
 
         Bind();
         WriteData(nullptr);
-        Unbind(*this);
     }
 
     GLBuffer::~GLBuffer()

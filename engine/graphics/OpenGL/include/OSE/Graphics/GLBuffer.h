@@ -1,15 +1,15 @@
 #pragma once
 
-#include <OSE/Graphics/GraphicsResource.h>
+#include "OSE/Graphics/GLResource.h"
+
 #include <OSE/Graphics/GraphicsResourceDescriptor.h>
 #include <OSE/TypeDefs.h>
 
 #include <vector>
 
 namespace OSE {
-    class GLBuffer: public GraphicsResource<ResourceType::Buffer>
+    class GLBuffer: public GLResource
     {
-    protected:
         uint m_Handle{ 0 };
 
         uint m_GLType;
@@ -20,9 +20,11 @@ namespace OSE {
         void WriteData(const byte* data) const;
         void WriteSubData(const byte* data, size_t length, size_t offset) const;
     public:
-        static void Unbind(const GLBuffer& buffer);
-
         GLBuffer(BufferType bType, size_t size, size_t byteSize, bool isStatic);
+
+        GLBuffer(GLBuffer&&) = delete;
+        GLBuffer& operator=(GLBuffer&&) = delete;
+
         ~GLBuffer();
 
         void Bind() const;

@@ -26,6 +26,7 @@ namespace OSE {
         virtual bool Write(const std::string& buffer);
 
         virtual bool Seek(size_t position) = 0;
+        virtual bool SeekCurrent(int64 offset) = 0;
         virtual int64 Tell() = 0;
         virtual size_t Length() = 0;
     };

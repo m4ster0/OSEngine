@@ -30,6 +30,11 @@ namespace OSE {
         return ::fseek(m_File, position, SEEK_SET) == 0;
     }
 
+    bool PosixFileSync::SeekCurrent(int64 offset)
+    {
+        return ::fseek(m_File, offset, SEEK_CUR) == 0;
+    }
+
     int64 PosixFileSync::Tell()
     {
         return ::ftell(m_File);

@@ -1,6 +1,8 @@
 #include "OSE/Graphics/GLRenderer.h"
 #include "OSE/Graphics/GLCommon.h"
 
+#include <OSE/Log.h>
+
 namespace OSE {
     static uint GetGLPrimitive(RenderPrimitive primitive)
     {
@@ -23,46 +25,39 @@ namespace OSE {
         return GL_TRIANGLES;
     }
 
-    GLRenderer::GLRenderer(const GLContext* context) : m_Context{ context }
-    {
-
-    }
-
-    GLRenderer::~GLRenderer()
+    GLRenderer::GLRenderer(GLContext* context) : m_Context{ context }
     {
 
     }
 
     void GLRenderer::BindProgram(ProgramHandle handle)
     {
-        m_Context->GetProgram(handle)->Bind();
+        OSE_ASSERT(m_Context, "Context has been destroyed. Renderer must be recreated onLoad");
+        OSE_ASSERT(handle, "Program handle is invalid");
+        m_Context->m_ProgramResources.At(handle.GetID())->Bind();
+        m_Context->m_CurrentProgram = handle;
     }
 
-    void GLRenderer::GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer)
+    void GLRenderer::BindTexture(TextureHandle handle, uint slot)
     {
-        GLVertexArray* array = m_Context->GetVertexArray(layout);
-        GLBuffer* vbo = m_Context->GetBuffer(vertexBuffer);
-
-        array->MakeVAO(*vbo);
+        OSE_ASSERT(m_Context, "Context has been destroyed. Renderer must be recreated onLoad");
+        OSE_ASSERT(handle, "Texture handle is invalid");
+        m_Context->m_TextureResources.At(handle.GetID())->Bind(slot);
     }
 
-    void GLRenderer::GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer)
-    {
-        GLVertexArray* array = m_Context->GetVertexArray(layout);
-        GLBuffer* vbo = m_Context->GetBuffer(vertexBuffer);
-        GLBuffer* ibo = m_Context->GetBuffer(indexBuffer);
-
-        array->MakeVAO(*vbo, *ibo);
-    }
 
     void GLRenderer::Draw(VertexLayoutHandle layout, RenderPrimitive primitive,
-                        BufferHandle vertexBuffer, BufferHandle indexBuffer,
+                        BufferHandle vertexBuffer,
                         size_t vertexCount, size_t startVertex)
     {
+        OSE_ASSERT(m_Context, "Context has been destroyed. Renderer must be recreated onLoad");
+        OSE_ASSERT(layout, "VertexLayout handle is invalid");
+        OSE_ASSERT(vertexBuffer, "VertexBuffer handle is invalid");
+
         uint glPrimitive = GetGLPrimitive(primitive);
 
-        GLVertexArray* array = m_Context->GetVertexArray(layout);
-        GLBuffer* vbo = m_Context->GetBuffer(vertexBuffer);
+        GLVertexArray* array = m_Context->m_VertexArrayResources.At(layout.GetID());
+        GLBuffer* vbo = m_Context->m_BufferResources.At(vertexBuffer.GetID());
 
         size_t count = array->Bind(*vbo);
         size_t start = 0;
@@ -79,11 +74,16 @@ namespace OSE {
                         BufferHandle vertexBuffer, BufferHandle indexBuffer,
                         size_t indexCount, size_t startIndex)
     {
+        OSE_ASSERT(m_Context, "Context has been destroyed. Renderer must be recreated onLoad");
+        OSE_ASSERT(layout, "VertexLayout handle is invalid");
+        OSE_ASSERT(vertexBuffer, "VertexBuffer handle is invalid");
+        OSE_ASSERT(indexBuffer, "IndexBuffer handle is invalid");
+
         uint glPrimitive = GetGLPrimitive(primitive);
 
-        GLVertexArray* array = m_Context->GetVertexArray(layout);
-        GLBuffer* vbo = m_Context->GetBuffer(vertexBuffer);
-        GLBuffer* ibo = m_Context->GetBuffer(indexBuffer);
+        GLVertexArray* array = m_Context->m_VertexArrayResources.At(layout.GetID());
+        GLBuffer* vbo = m_Context->m_BufferResources.At(vertexBuffer.GetID());
+        GLBuffer* ibo = m_Context->m_BufferResources.At(indexBuffer.GetID());
 
         size_t count = array->BindIndexed(*vbo, *ibo);
         size_t start = 0;

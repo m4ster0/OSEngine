@@ -36,6 +36,15 @@ namespace OSE {
         return offset.QuadPart == result.QuadPart;
     }
 
+    bool Win32FileSync::SeekCurrent(int64 offset)
+    {
+        LARGE_INTEGER winOffset{ offset };
+        LARGE_INTEGER result{ 0 };
+        SetFilePointerEx(m_File, winOffset, &result, FILE_CURRENT);
+
+        return winOffset.QuadPart == result.QuadPart;
+    }
+
     int64 Win32FileSync::Tell()
     {
         LARGE_INTEGER offset{ 0 };

@@ -10,24 +10,18 @@
 namespace OSE {
     class GLRenderer: public GraphicsRenderer
     {
-        friend class GLDevice;
-
         //state cache
-        const GLContext* m_Context;
-        GLRenderer(const GLContext* context);
+        GLContext* m_Context;
 
-        //void OnContextLoss();
     public:
-        ~GLRenderer();
+        GLRenderer(GLContext* context);
 
         void BindProgram(ProgramHandle handle) override;
-        //uniforms binding todo
+        void BindTexture(TextureHandle handle, uint slot = 0) override;
 
-        void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer) override;
-        void GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer) override;
 
         void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,
-            BufferHandle vertexBuffer, BufferHandle indexBuffer,
+            BufferHandle vertexBuffer,
             size_t vertexCount = 0, size_t startVertex = 0) override;
 
         void DrawIndexed(VertexLayoutHandle layout, RenderPrimitive primitive,

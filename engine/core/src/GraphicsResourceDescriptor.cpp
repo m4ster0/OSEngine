@@ -27,7 +27,7 @@ namespace OSE {
 
         static std::unordered_map<ShaderT, std::string> names = {
             { ShaderT::Vertex, "vertex" },
-        { ShaderT::Fragment, "fragment" }
+            { ShaderT::Fragment, "fragment" }
         };
 
         std::function<ShaderDescriptor(ShaderT)> getShaderDesc = [&singleSrc](ShaderT type) -> ShaderDescriptor {
