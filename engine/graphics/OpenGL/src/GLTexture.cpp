@@ -50,7 +50,7 @@ namespace OSE {
         }
     }
 
-    GLTexture::GLTexture()
+    GLTexture::GLTexture(int32 id): GLResource(id)
     {
         GLCall(glGenTextures(1, &m_Handle));
         OSE_ASSERT(m_Handle, "Could not create texture");

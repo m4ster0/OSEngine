@@ -20,7 +20,7 @@ namespace OSE {
         void WriteData(const byte* data) const;
         void WriteSubData(const byte* data, size_t length, size_t offset) const;
     public:
-        GLBuffer(BufferType bType, size_t size, size_t byteSize, bool isStatic);
+        GLBuffer(int32 id, BufferType bType, size_t size, size_t byteSize, bool isStatic);
 
         GLBuffer(GLBuffer&&) = delete;
         GLBuffer& operator=(GLBuffer&&) = delete;

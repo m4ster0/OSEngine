@@ -16,7 +16,7 @@ namespace OSE {
         size_t m_Height{ 0 };
         Image::Format m_Format;
     public:
-        GLTexture();
+        GLTexture(int32 id);
         ~GLTexture();
 
         GLTexture(GLTexture&&) = delete;

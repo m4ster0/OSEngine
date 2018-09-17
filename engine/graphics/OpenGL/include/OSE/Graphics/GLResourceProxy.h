@@ -13,6 +13,7 @@ namespace OSE {
         GLResourceProxy(GLContext* context);
 
         ProgramHandle CreateProgram(const std::vector<ShaderDescriptor>& shaderDescriptors) override;
+        const ProgramUniform* GetProgramUniform(ProgramHandle handle, const std::string& name) override;
         void DisposeProgram(ProgramHandle handle) override;
 
         BufferHandle CreateBuffer(BufferDescriptor::Type type, const BufferDescriptor& desc, const BufferDataDescriptor* dataDesc = nullptr) override;

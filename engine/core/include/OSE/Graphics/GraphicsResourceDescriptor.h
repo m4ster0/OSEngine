@@ -1,6 +1,5 @@
 #pragma once
 
-#include "OSE/Graphics/ResourceID.h"
 #include "OSE/TypeDefs.h"
 
 #include <string>
@@ -23,8 +22,9 @@ namespace OSE {
 
     struct ProgramUniform
     {
-        ProgramHandle program;
         std::string name;
+
+        virtual ~ProgramUniform() = default;
     };
 
     std::vector<ShaderDescriptor> shaderDescriptorsFromSources(const std::string& vertSrc, const std::string& fragSrc);

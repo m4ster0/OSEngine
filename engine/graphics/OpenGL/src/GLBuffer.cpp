@@ -16,8 +16,12 @@ namespace OSE {
         return 0;
     }
 
-    GLBuffer::GLBuffer(BufferType bType, size_t size, size_t byteSize, bool isStatic) :
-        m_GLType{ GetGLBufferType(bType) }, m_Size{ size }, m_ByteSize{ byteSize }, m_IsStatic{ isStatic }
+    GLBuffer::GLBuffer(int32 id, BufferType bType, size_t size, size_t byteSize, bool isStatic) :
+        GLResource(id),
+        m_GLType{ GetGLBufferType(bType) },
+        m_Size{ size },
+        m_ByteSize{ byteSize },
+        m_IsStatic{ isStatic }
     {
         GLCall(glGenBuffers(1, &m_Handle));
         OSE_ASSERT(m_Handle, "Could not create buffer");

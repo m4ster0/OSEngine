@@ -15,9 +15,8 @@ namespace OSE {
         GLCall(glDeleteVertexArrays(1, &handle));
     }
 
-
-    GLVertexArray::GLVertexArray(const GLVertexLayout& layout):
-        m_Layout{ layout }
+    GLVertexArray::GLVertexArray(int32 id, const std::vector<VertexAttributeDescriptor>& attributes):
+        GLResource(id), m_Layout{ attributes }
     {
 
     }

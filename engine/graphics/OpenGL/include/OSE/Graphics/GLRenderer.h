@@ -17,8 +17,12 @@ namespace OSE {
         GLRenderer(GLContext* context);
 
         void BindProgram(ProgramHandle handle) override;
-        void BindTexture(TextureHandle handle, uint slot = 0) override;
+        void SetProgramUniform(const ProgramUniform& uniform, int value) override;
+        void SetProgramUniform(const ProgramUniform& uniform, const int* values, size_t count) override;
+        void SetProgramUniform(const ProgramUniform& uniform, float value) override;
+        void SetProgramUniform(const ProgramUniform& uniform, const float* values, size_t count) override;
 
+        void BindTexture(TextureHandle handle, uint slot = 0) override;
 
         void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,
             BufferHandle vertexBuffer,

@@ -21,9 +21,12 @@ namespace OSE {
         virtual ~GraphicsRenderer() = default;
 
         virtual void BindProgram(ProgramHandle handle) = 0;
-        //virtual bool BindProgramUniformi(const ProgramUniform& uniform, int value) = 0;
-        //virtual bool BindProgramUniformTexSampler2D(const ProgramUniform& uniform, int value) = 0;
-        //virtual bool BindProgramUniformiv(const ProgramUniform& uniform, int* values, size_t count) = 0;
+
+        virtual void SetProgramUniform(const ProgramUniform& uniform, int value) = 0;
+        virtual void SetProgramUniform(const ProgramUniform& uniform, const int* values, size_t count) = 0;
+        virtual void SetProgramUniform(const ProgramUniform& uniform, float value) = 0;
+        virtual void SetProgramUniform(const ProgramUniform& uniform, const float* values, size_t count) = 0;
+
         virtual void BindTexture(TextureHandle handle, uint slot = 0) = 0;
 
         virtual void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,

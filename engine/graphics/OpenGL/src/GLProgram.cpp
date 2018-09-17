@@ -3,6 +3,8 @@
 
 #include <OSE/Log.h>
 
+#include <cstring>
+
 namespace OSE {
 
     static uint GetShaderGLType(ShaderType type)
@@ -64,17 +66,29 @@ namespace OSE {
         }
     };
 
-    GLProgram* GLProgram::Create(const std::vector<ShaderDescriptor>& shaderDescs)
+    GLProgram::GLProgram(int32 id, const std::vector<ShaderDescriptor>& descs):
+        GLResource(id)
     {
-        GLProgram* program{ new GLProgram };
+        m_Handle = glCreateProgram();
+        Compile(descs);
+        CreateUniformCache();
+    }
 
+
+    GLProgram::~GLProgram()
+    {
+        Dispose();
+    }
+
+    void GLProgram::Compile(const std::vector<ShaderDescriptor>& descs)
+    {
         std::vector<std::unique_ptr<GLShader>> shaders;
-        for (const auto& desc : shaderDescs)
+        for (const auto& desc : descs)
         {
             std::unique_ptr<GLShader> shader = GLShader::Create(desc);
             if (shader)
             {
-                GLCall(glAttachShader(program->m_Handle, shader->handle));
+                GLCall(glAttachShader(m_Handle, shader->handle));
                 shaders.push_back(std::move(shader));
             }
         }
@@ -84,35 +98,87 @@ namespace OSE {
         {
             uint location{ static_cast<uint>(it->first) }; //VertexAttribute::Type enum value corresponds to location in shader
             const char* name{ it->second.c_str() }; //VertexAttribute::Type has corresponding name which all shaders must adhere to if using it
-            GLCall(glBindAttribLocation(program->m_Handle, location, name));
+            GLCall(glBindAttribLocation(m_Handle, location, name));
         }
 
-        GLCall(glLinkProgram(program->m_Handle));
+        GLCall(glLinkProgram(m_Handle));
 
         int success;
-        GLCall(glGetProgramiv(program->m_Handle, GL_LINK_STATUS, &success));
+        GLCall(glGetProgramiv(m_Handle, GL_LINK_STATUS, &success));
         if (success == GL_FALSE)
         {
             int length;
-            GLCall(glGetProgramiv(program->m_Handle, GL_INFO_LOG_LENGTH, &length));
+            GLCall(glGetProgramiv(m_Handle, GL_INFO_LOG_LENGTH, &length));
             std::unique_ptr<char[]> message{ new char[length] };
-            GLCall(glGetProgramInfoLog(program->m_Handle, length, &length, message.get()));
+            GLCall(glGetProgramInfoLog(m_Handle, length, &length, message.get()));
             OSE_ERROR("program linking failure: ", message.get());
         }
 
-        GLCall(glValidateProgram(program->m_Handle));
-
-        return program;
+        GLCall(glValidateProgram(m_Handle));
     }
 
-    GLProgram::GLProgram()
+    void GLProgram::CreateUniformCache()
     {
-        m_Handle = glCreateProgram();
+        //Querying uniforms for caching
+        int activeUniforms, nameLength;
+        GLCall(glGetProgramiv(m_Handle, GL_ACTIVE_UNIFORMS, &activeUniforms));
+        GLCall(glGetProgramiv(m_Handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameLength));
+        if (activeUniforms && nameLength)
+        {
+            auto formatName = [](const char* name) {
+                int len = std::strlen(name);
+                auto endsWith = [name, len](const char* ending) {
+                    int endingStart = len - std::strlen(ending);
+                    return endingStart && std::strcmp(name + endingStart, ending) == 0;
+                };
+
+                if (endsWith("[0]"))
+                    return std::string(name, len - 3);
+
+                return std::string(name);
+            };
+
+            std::unique_ptr<char[]> rawUniformName{ new char[nameLength + 1] };
+            int uniformSize;
+            GLenum uniformType;
+            for (int i = 0; i < activeUniforms; ++i)
+            {
+                GLCall(glGetActiveUniform(m_Handle, i, nameLength, NULL, &uniformSize, &uniformType, rawUniformName.get()));
+                std::string uniformName{ formatName(rawUniformName.get()) };
+
+                std::unique_ptr<ProgramUniform> uniform = CreateUniform(uniformName, uniformType, uniformSize);
+                uniform->name = uniformName;
+                m_Uniforms[uniformName] = std::move(uniform);
+            }
+        }
     }
 
-    GLProgram::~GLProgram()
+    std::unique_ptr<ProgramUniform> GLProgram::CreateUniform(const std::string& name, uint type, int size)
     {
-        Dispose();
+        int location = GetUniformLocation(name);
+        OSE_ASSERT(location >= 0, name + " uniform does not correspond to an active uniform");
+        switch (type)
+        {
+        case GL_FLOAT:
+            return CreateGLProgramUniform<float>(rid, location, size);
+        case GL_INT:
+        case GL_SAMPLER_2D:
+        case GL_SAMPLER_3D:
+            return CreateGLProgramUniform<int>(rid, location, size);
+        }
+
+        OSE_ERROR("not supported uniform gl_type: ", type);
+        return nullptr;
+    }
+
+    int GLProgram::GetAttributeLocation(const std::string& name) const
+    {
+        return glGetAttribLocation(m_Handle, name.c_str());
+    }
+
+    int GLProgram::GetUniformLocation(const std::string& name) const
+    {
+        return glGetUniformLocation(m_Handle, name.c_str());
     }
 
     void GLProgram::Bind() const
@@ -120,20 +186,19 @@ namespace OSE {
         GLCall(glUseProgram(m_Handle));
     }
 
-    uint GLProgram::GetAttributeLocation(const std::string& name) const
+    ProgramUniform* GLProgram::GetUniform(const std::string& name) const
     {
-        return glGetAttribLocation(m_Handle, name.c_str());
-    }
+        auto it = m_Uniforms.find(name);
+        if (it != m_Uniforms.end())
+            return it->second.get();
 
-    uint GLProgram::GetUniformLocation(const std::string& name) const
-    {
-        return glGetUniformLocation(m_Handle, name.c_str());
+        return nullptr;
     }
 
     void GLProgram::Dispose()
     {
         if (m_Handle)
-            GLCall(glDeleteProgram(m_Handle));
+            glDeleteProgram(m_Handle);
 
         m_Handle = 0;
     }

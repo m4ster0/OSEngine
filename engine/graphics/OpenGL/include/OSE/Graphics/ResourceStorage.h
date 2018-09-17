@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <vector>
+#include <utility>
 
 namespace OSE {
 
@@ -27,8 +28,10 @@ namespace OSE {
         R* At(size_t index) const;
         void Remove(size_t index);
 
+        template<typename... Args>
+        R& CreateNext(Args&& ...args);
+
         bool HasNext() const;
-        size_t PutNext(R* resource);
 
         void Clear();
     };
@@ -53,17 +56,17 @@ namespace OSE {
     }
 
     template<class R>
-    size_t ResourceStorage<R>::PutNext(R* resource)
+    template<typename... Args>
+    R& ResourceStorage<R>::CreateNext(Args&& ...args)
     {
-        size_t putIndex = m_NextIndex;
-        resource->rid = putIndex;
-        m_Storage[putIndex] = resource;
+        R* resource = new R(m_NextIndex, std::forward<Args>(args)...);
+        m_Storage[m_NextIndex] = resource;
 
         do
             m_NextIndex++;
         while (m_NextIndex < m_Size && m_Storage[m_NextIndex] != nullptr);
 
-        return putIndex;
+        return *resource;
     }
 
     template<class R>

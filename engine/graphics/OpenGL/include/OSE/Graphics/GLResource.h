@@ -7,9 +7,9 @@ namespace OSE {
 
     struct GLResource
     {
-        int32 rid{ 0 };
+        int32 rid;
 
-        GLResource() = default;
+        GLResource(int32 id) : rid{ id } {};
         virtual ~GLResource() = default;
 
         virtual void Dispose() = 0;

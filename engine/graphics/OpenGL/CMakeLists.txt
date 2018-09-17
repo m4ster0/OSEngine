@@ -7,6 +7,7 @@ set( SOURCES
    ${SRC_DIR}/GLDevice.cpp
    ${SRC_DIR}/GLContext.cpp
    ${SRC_DIR}/GLProgram.cpp
+   ${SRC_DIR}/GLProgramUniform.cpp
    ${SRC_DIR}/GLBuffer.cpp
    ${SRC_DIR}/GLVertexLayout.cpp
    ${SRC_DIR}/GLVertexArray.cpp

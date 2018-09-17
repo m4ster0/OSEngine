@@ -32,7 +32,7 @@ namespace OSE {
         void BindVerbose(const GLBuffer& vbo, const GLBuffer* ibo);
 
     public:
-        GLVertexArray(const GLVertexLayout& layout);
+        GLVertexArray(int32 id, const std::vector<VertexAttributeDescriptor>& attributes);
 
         GLVertexArray(GLVertexArray&&) = delete;
         GLVertexArray& operator=(GLVertexArray&&) = delete;

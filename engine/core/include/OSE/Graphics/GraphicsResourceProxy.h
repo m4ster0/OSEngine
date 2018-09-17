@@ -15,7 +15,7 @@ namespace OSE {
         virtual ~GraphicsResourceProxy() = default;
 
         virtual ProgramHandle CreateProgram(const std::vector<ShaderDescriptor>& shaderDescriptors) = 0;
-        //virtual const ProgramUniform* GetProgramUniform(ProgramHandle handle, const std::string& name) = 0;
+        virtual const ProgramUniform* GetProgramUniform(ProgramHandle handle, const std::string& name) = 0;
         virtual void DisposeProgram(ProgramHandle handle) = 0;
 
         virtual BufferHandle CreateBuffer(BufferDescriptor::Type type, const BufferDescriptor& desc, const BufferDataDescriptor* dataDesc = nullptr) = 0;

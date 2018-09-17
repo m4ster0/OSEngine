@@ -17,13 +17,18 @@ namespace OSE {
         ProgramHandle handle = ProgramHandle::Invalid;
         if (m_Context->m_ProgramResources.HasNext())
         {
-            GLProgram* program = GLProgram::Create(shaderDescriptors);
-
-            int32 index = m_Context->m_ProgramResources.PutNext(program);
-            handle = ProgramHandle{ index };
+            GLProgram& program = m_Context->m_ProgramResources.CreateNext(shaderDescriptors);
+            handle = ProgramHandle{ program.rid };
         }
 
         return handle;
+    }
+
+    const ProgramUniform* GLResourceProxy::GetProgramUniform(ProgramHandle handle, const std::string& name)
+    {
+        OSE_ASSERT(m_Context, "Context has been destroyed. ResourceProxy must be recreated onLoad");
+        GLProgram* program = m_Context->m_ProgramResources.At(handle.GetID());
+        return program->GetUniform(name);
     }
 
     void GLResourceProxy::DisposeProgram(ProgramHandle handle)
@@ -42,16 +47,13 @@ namespace OSE {
         BufferHandle handle = BufferHandle::Invalid;
         if (m_Context->m_BufferResources.HasNext())
         {
-            GLBuffer* buffer{ new GLBuffer(type, desc.size, desc.byteSize, desc.isStatic) };
-
+            GLBuffer& buffer = m_Context->m_BufferResources.CreateNext(type, desc.size, desc.byteSize, desc.isStatic);
             if (dataDesc)
             {
-                buffer->Bind();
-                buffer->Write(dataDesc->data, dataDesc->length, dataDesc->offset, dataDesc->discardAll);
+                buffer.Bind();
+                buffer.Write(dataDesc->data, dataDesc->length, dataDesc->offset, dataDesc->discardAll);
             }
-
-            int32 index = m_Context->m_BufferResources.PutNext(buffer);
-            handle = BufferHandle{ index };
+            handle = BufferHandle{ buffer.rid };
         }
 
         return handle;
@@ -73,11 +75,8 @@ namespace OSE {
         VertexLayoutHandle handle = VertexLayoutHandle::Invalid;
         if (m_Context->m_VertexArrayResources.HasNext())
         {
-            GLVertexLayout layout{ attributeDescriptors };
-            GLVertexArray* vertArray{ new GLVertexArray(layout) };
-
-            int32 index = m_Context->m_VertexArrayResources.PutNext(vertArray);
-            handle = VertexLayoutHandle{ index };
+            GLVertexArray& vertArray = m_Context->m_VertexArrayResources.CreateNext(attributeDescriptors);
+            handle = VertexLayoutHandle{ vertArray.rid };
         }
 
         return handle;
@@ -125,15 +124,13 @@ namespace OSE {
         TextureHandle handle = TextureHandle::Invalid;
         if (m_Context->m_TextureResources.HasNext())
         {
-            GLTexture* texture{ new GLTexture() };
-            texture->Bind();
-            texture->SetParameters(desc);
-
+            GLTexture& texture = m_Context->m_TextureResources.CreateNext();
+            texture.Bind();
+            texture.SetParameters(desc);
             if (image)
-                texture->UploadData(*image);
+                texture.UploadData(*image);
 
-            int32 index = m_Context->m_TextureResources.PutNext(texture);
-            handle = TextureHandle{ index };
+            handle = TextureHandle{ texture.rid };
         }
 
         return handle;

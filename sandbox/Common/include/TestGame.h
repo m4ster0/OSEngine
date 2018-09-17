@@ -3,6 +3,7 @@
 #include <OSE/Graphics/ResourceID.h>
 #include <OSE/Graphics/GraphicsDevice.h>
 #include <OSE/Graphics/GraphicsRenderer.h>
+#include <OSE/Graphics/GraphicsResourceDescriptor.h>
 
 #include <OSE/Game.h>
 #include <OSE/TypeDefs.h>
@@ -14,6 +15,8 @@ struct Material
     OSE::TextureHandle tex0;
     OSE::TextureHandle tex1;
     OSE::ProgramHandle program;
+    const OSE::ProgramUniform* tex0sampler;
+    const OSE::ProgramUniform* tex1sampler;
 };
 
 struct Mesh
