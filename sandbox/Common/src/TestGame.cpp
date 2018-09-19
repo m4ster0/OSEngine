@@ -90,10 +90,11 @@ void TestGame::OnLoad()
     material.program = programHandle;
 
     material.tex0sampler = resProxy->GetProgramUniform(programHandle, "texture0");
-    material.tex1sampler = resProxy->GetProgramUniform(programHandle, "texture0");
+    material.tex1sampler = resProxy->GetProgramUniform(programHandle, "texture1");
+    material.timeUniform = resProxy->GetProgramUniform(programHandle, "time");
 
     std::unique_ptr<OSE::Image> image{ nullptr };
-    image = OSE::ImageFactory::Decode(fileSystem, "assets", "Assets/Textures/container.jpg", { OSE::Image::Format::RGB, false });
+    image = OSE::ImageFactory::decode(fileSystem, "assets", "Assets/Textures/container.jpg", { OSE::Image::Format::RGB, false });
     if (image)
     {
         OSE::TextureDescriptor texDesc{};
@@ -101,7 +102,7 @@ void TestGame::OnLoad()
         image->Dispose();
     }
 
-    image = OSE::ImageFactory::Decode(fileSystem, "assets", "Assets/Textures/awesomeface.png", { OSE::Image::Format::RGBA, true });
+    image = OSE::ImageFactory::decode(fileSystem, "assets", "Assets/Textures/awesomeface.png", { OSE::Image::Format::RGBA, true });
     if (image)
     {
         OSE::TextureDescriptor texDesc{};
@@ -151,6 +152,8 @@ void TestGame::OnLoad()
 
     renderer = OSE::Platform::Instance().GetGraphicsDevice().CreateRenderer();
 
+    //Sprite sprite
+    //Font font
     //ImageLoader imgLoader{ fileSystem };
 
     //TextureDescriptor
@@ -203,11 +206,14 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     //float correction1 = (sin(gameTime.total.Seconds() * 2.0) / 2.0) + 0.5;
     //float correction2 = (sin(gameTime.total.Seconds()) / 2.0) + 0.5;
     //shader->Use();
+
+
     renderer->BindProgram(material.program);
     renderer->BindTexture(material.tex0, 0);
     renderer->BindTexture(material.tex1, 1);
     renderer->SetProgramUniform(*material.tex0sampler, 0);
     renderer->SetProgramUniform(*material.tex1sampler, 1);
+    renderer->SetProgramUniform(*material.timeUniform, (float) gameTime.total.Seconds());
 
     renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
         triangle1.vertexBuffer, triangle1.indexBuffer);

@@ -25,8 +25,6 @@ namespace OSE {
 
 	class Platform
     {
-        static Platform* s_Instance;
-
     public:
 		inline static Platform& Instance() { return *s_Instance; }
 
@@ -44,6 +42,8 @@ namespace OSE {
 		PlatformType GetPlatformType();
 
     private:
+        static Platform* s_Instance;
+
         std::unique_ptr<Game> m_Game{ nullptr };
         bool m_Running{ false };
         bool m_ShouldClose{ false };

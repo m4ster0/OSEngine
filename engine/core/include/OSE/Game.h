@@ -8,10 +8,6 @@ namespace OSE {
 
     class Game
     {
-    protected:
-        bool m_FixedTimeStep{ false };
-        TimeStep m_TargetTimeStep{ 16.6ms };
-
     public:
         virtual ~Game() = default;
 
@@ -28,5 +24,9 @@ namespace OSE {
 
         inline bool IsFixedTimeStep() const { return m_FixedTimeStep; }
         inline TimeStep GetTargetTimeStep() const { return m_TargetTimeStep; }
+
+    protected:
+        bool m_FixedTimeStep{ false };
+        TimeStep m_TargetTimeStep{ 16.6ms };
     };
 }

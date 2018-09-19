@@ -8,11 +8,15 @@ in vec2 aTexCoord0;
 out vec3 vColor;
 out vec2 vTexCoord0;
 
+uniform float time;
+
 void main()
 {
     vColor = aColor;
     vTexCoord0 = aTexCoord0;
-    gl_Position = vec4(aPosition.x, aPosition.y, 0, 1.0);
+    float posX = aPosition.x + max(0, aPosition.y) / aPosition.y * 0.2 * sin(time / 2.0);
+    float posY = aPosition.y + max(0, aPosition.y) / aPosition.y * 0.1 * cos(sin(time) * 6.14);
+    gl_Position = vec4(posX, aPosition.y, 0, 1.0);
 }
 %%vertex
 
@@ -29,6 +33,6 @@ uniform sampler2D texture1;
 
 void main()
 {
-    FragColor = mix(texture(texture0, vTexCoord0), texture(texture1, vTexCoord0), 0.8);
+    FragColor = mix(texture(texture0, vTexCoord0), texture(texture1, vTexCoord0), 0.2);
 }
 %%fragment

@@ -2,7 +2,6 @@ set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src )
 set( INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 set(SRC_FILES
-    ${SRC_DIR}/Vector3.cpp
     ${SRC_DIR}/Timer.cpp
     ${SRC_DIR}/Logger.cpp
     ${SRC_DIR}/GraphicsResourceDescriptor.cpp
@@ -85,7 +84,10 @@ if ( ose-cmake_BUILD_TESTS )
             ${TEST_DIR}/MainTest.cpp
             ${TEST_DIR}/SignalTest.cpp
             ${TEST_DIR}/EventBusTest.cpp
-            ${TEST_DIR}/TimerTest.cpp )
+            ${TEST_DIR}/TimerTest.cpp
+            ${TEST_DIR}/Math/VectorTest.cpp
+            ${TEST_DIR}/Math/MatrixTest.cpp
+            ${TEST_DIR}/Math/OperationTest.cpp)
 
     add_executable(oceansoul-core-tests ${TEST_SRC})
     target_include_directories(oceansoul-core-tests PRIVATE ${Boost_INCLUDE_DIRS})

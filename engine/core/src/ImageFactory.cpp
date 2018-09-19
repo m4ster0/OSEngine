@@ -25,16 +25,16 @@ namespace OSE {
             }
         }
 
-        std::unique_ptr<Image> Decode(const FileSystem& fileSystem, const std::string& device, const std::string & path, const DecodeOptions& options)
+        std::unique_ptr<Image> decode(const FileSystem& fileSystem, const std::string& device, const std::string & path, const DecodeOptions& options)
         {
             std::unique_ptr<File> file = fileSystem.OpenFileSync(device, path, FileMode::Read);
             if (file)
-                return Decode(*file, options);
+                return decode(*file, options);
 
             return nullptr;
         }
 
-        std::unique_ptr<Image> Decode(File& file, const DecodeOptions& options)
+        std::unique_ptr<Image> decode(File& file, const DecodeOptions& options)
         {
             stbi_io_callbacks callbacks{};
             callbacks.read = [](void *user, char *data, int size) -> int {
@@ -65,7 +65,7 @@ namespace OSE {
             return std::unique_ptr<Image>{ new Image(std::move(imgData), width, height, options.format) };
         }
 
-        std::unique_ptr<Image> Decode(const byte* data, size_t length, const DecodeOptions& options)
+        std::unique_ptr<Image> decode(const byte* data, size_t length, const DecodeOptions& options)
         {
             int channels = formatToNumChannels(options.format);
             int width, height, srcChannels;

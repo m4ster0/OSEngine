@@ -18,9 +18,9 @@ namespace OSE {
             bool flipY{ false };
         };
 
-        std::unique_ptr<Image> Decode(const FileSystem& fileSystem, const std::string& device, const std::string& path, const DecodeOptions& options = DecodeOptions{});
-        std::unique_ptr<Image> Decode(File& file, const DecodeOptions& options = DecodeOptions{});
-        std::unique_ptr<Image> Decode(const byte* data, size_t length, const DecodeOptions& options = DecodeOptions{});
+        std::unique_ptr<Image> decode(const FileSystem& fileSystem, const std::string& device, const std::string& path, const DecodeOptions& options = DecodeOptions{});
+        std::unique_ptr<Image> decode(File& file, const DecodeOptions& options = DecodeOptions{});
+        std::unique_ptr<Image> decode(const byte* data, size_t length, const DecodeOptions& options = DecodeOptions{});
     }
 
 }

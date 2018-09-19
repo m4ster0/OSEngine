@@ -8,7 +8,7 @@ namespace OSE {
     ResourceStorage<R>::ResourceStorage(size_t maxSize):
         m_Size{ maxSize }, m_Storage{ nullptr }
     {
-        m_Storage = std::unique_ptr<R*[]>(new R*[maxSize] {});
+        m_Storage = std::unique_ptr<R*[]>(new R*[maxSize]());
     }
 
     template<class R>

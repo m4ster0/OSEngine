@@ -17,6 +17,7 @@ struct Material
     OSE::ProgramHandle program;
     const OSE::ProgramUniform* tex0sampler;
     const OSE::ProgramUniform* tex1sampler;
+    const OSE::ProgramUniform* timeUniform;
 };
 
 struct Mesh
