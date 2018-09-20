@@ -1,6 +1,8 @@
 #include "OSE/Graphics/GLProgram.h"
 #include "OSE/Graphics/GLCommon.h"
 
+#include <OSE/Math/Vector.h>
+#include <OSE/Math/Matrix.h>
 #include <OSE/Log.h>
 
 #include <cstring>
@@ -70,6 +72,7 @@ namespace OSE {
         GLResource(id)
     {
         m_Handle = glCreateProgram();
+        Preprocess();
         Compile(descs);
         CreateUniformCache();
     }
@@ -78,6 +81,11 @@ namespace OSE {
     GLProgram::~GLProgram()
     {
         Dispose();
+    }
+
+    void GLProgram::Preprocess()
+    {
+
     }
 
     void GLProgram::Compile(const std::vector<ShaderDescriptor>& descs)
@@ -160,11 +168,29 @@ namespace OSE {
         switch (type)
         {
         case GL_FLOAT:
-            return CreateGLProgramUniform<float>(rid, location, size);
+            return createGLProgramUniform<float>(rid, location, size);
         case GL_INT:
         case GL_SAMPLER_2D:
         case GL_SAMPLER_3D:
-            return CreateGLProgramUniform<int>(rid, location, size);
+            return createGLProgramUniform<int>(rid, location, size);
+        case GL_FLOAT_VEC2:
+            return createGLProgramUniform<Vec2>(rid, location, size);
+        case GL_FLOAT_VEC3:
+            return createGLProgramUniform<Vec3>(rid, location, size);
+        case GL_FLOAT_VEC4:
+            return createGLProgramUniform<Vec4>(rid, location, size);
+        case GL_INT_VEC2:
+            return createGLProgramUniform<IVec2>(rid, location, size);
+        case GL_INT_VEC3:
+            return createGLProgramUniform<IVec3>(rid, location, size);
+        case GL_INT_VEC4:
+            return createGLProgramUniform<IVec4>(rid, location, size);
+        case GL_FLOAT_MAT2:
+            return createGLProgramUniform<Mat2>(rid, location, size);
+        case GL_FLOAT_MAT3:
+            return createGLProgramUniform<Mat3>(rid, location, size);
+        case GL_FLOAT_MAT4:
+            return createGLProgramUniform<Mat4>(rid, location, size);
         }
 
         OSE_ERROR("not supported uniform gl_type: ", type);

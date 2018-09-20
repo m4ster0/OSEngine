@@ -21,6 +21,8 @@ namespace OSE {
         uint m_Handle{ 0 };
         UniformCache m_Uniforms;
 
+        //TODO add some defines for compilation
+        void Preprocess();
         void Compile(const std::vector<ShaderDescriptor>& descs);
         void CreateUniformCache();
 

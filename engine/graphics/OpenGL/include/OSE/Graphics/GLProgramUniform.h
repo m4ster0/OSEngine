@@ -26,7 +26,7 @@ namespace OSE {
     };
 
     template<typename T>
-    static std::unique_ptr<ProgramUniform> CreateGLProgramUniform(int32 programID, int location, int size)
+    std::unique_ptr<ProgramUniform> createGLProgramUniform(int32 programID, int location, int size)
     {
         if (size > 1)
         {
