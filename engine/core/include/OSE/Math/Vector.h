@@ -224,6 +224,10 @@ namespace OSE {
     using IVec3 = Vector<int, 3>;
     using IVec4 = Vector<int, 4>;
 
+    template<typename T> Vector<T, 3> Vector<T, 3>::Zero{ 0, 0, 0 };
+    template<typename T> Vector<T, 3> Vector<T, 3>::XAxis{ 1.0f, 0, 0 };
+    template<typename T> Vector<T, 3> Vector<T, 3>::YAxis{ 0, 1.0f, 0 };
+    template<typename T> Vector<T, 3> Vector<T, 3>::ZAxis{ 0, 0, 1.0f };
 
     // addition
     template<typename T, std::size_t n>

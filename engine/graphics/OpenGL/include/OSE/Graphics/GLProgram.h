@@ -15,7 +15,7 @@ namespace OSE {
 
     class GLProgram : public GLResource
     {
-        using UniformPtr = std::unique_ptr<ProgramUniform>;
+        using UniformPtr = std::unique_ptr<ProgramUniformBase>;
         using UniformCache = std::unordered_map<std::string, UniformPtr>;
 
         uint m_Handle{ 0 };
@@ -26,7 +26,7 @@ namespace OSE {
         void Compile(const std::vector<ShaderDescriptor>& descs);
         void CreateUniformCache();
 
-        std::unique_ptr<ProgramUniform> CreateUniform(const std::string& name, uint type, int size);
+        std::unique_ptr<ProgramUniformBase> CreateUniform(const std::string& name, uint type, int size);
         int GetAttributeLocation(const std::string& name) const;
         int GetUniformLocation(const std::string& name) const;
     public:
@@ -38,7 +38,7 @@ namespace OSE {
         ~GLProgram();
 
         void Bind() const;
-        ProgramUniform* GetUniform(const std::string& name) const;
+        ProgramUniformBase* GetUniform(const std::string& name) const;
         inline size_t GetUniformCount() const { return m_Uniforms.size(); }
 
         void Dispose() override;

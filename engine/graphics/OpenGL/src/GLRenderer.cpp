@@ -43,42 +43,6 @@ namespace OSE {
         m_Context->m_CurrentProgram = handle;
     }
 
-    void GLRenderer::SetProgramUniform(const ProgramUniform& uniform, int value)
-    {
-        OSE_ASSERT(m_Context->m_CurrentProgram, "there must be active program");
-
-        const GLProgramUniform<int>* glUniform = dynamic_cast<const GLProgramUniform<int>*>(&uniform);
-        OSE_ASSERT_UNIFORM(glUniform, m_Context->m_CurrentProgram);
-        glUniform->Bind(value);
-    }
-
-    void GLRenderer::SetProgramUniform(const ProgramUniform& uniform, const int* values, size_t count)
-    {
-        OSE_ASSERT(m_Context->m_CurrentProgram, "there must be active program");
-
-        const GLProgramUniformV<int>* glUniform = dynamic_cast<const GLProgramUniformV<int>*>(&uniform);
-        OSE_ASSERT_UNIFORM(glUniform, m_Context->m_CurrentProgram);
-        glUniform->Bind(values, count);
-    }
-
-    void GLRenderer::SetProgramUniform(const ProgramUniform& uniform, float value)
-    {
-        OSE_ASSERT(m_Context->m_CurrentProgram, "there must be active program");
-
-        const GLProgramUniform<float>* glUniform = dynamic_cast<const GLProgramUniform<float>*>(&uniform);
-        OSE_ASSERT_UNIFORM(glUniform, m_Context->m_CurrentProgram);
-        glUniform->Bind(value);
-    }
-
-    void GLRenderer::SetProgramUniform(const ProgramUniform& uniform, const float* values, size_t count)
-    {
-        OSE_ASSERT(m_Context->m_CurrentProgram, "there must be active program");
-
-        const GLProgramUniformV<float>* glUniform = dynamic_cast<const GLProgramUniformV<float>*>(&uniform);
-        OSE_ASSERT_UNIFORM(glUniform, m_Context->m_CurrentProgram);
-        glUniform->Bind(values, count);
-    }
-
     void GLRenderer::BindTexture(TextureHandle handle, uint slot)
     {
         OSE_ASSERT(m_Context, "Context has been destroyed. Renderer must be recreated onLoad");

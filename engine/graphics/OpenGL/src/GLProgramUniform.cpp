@@ -126,11 +126,25 @@ namespace OSE {
         glUniformMatrix2fv(location, 1, GL_TRUE, reinterpret_cast<const float*>(&value));
     }
 
+    template<>
+    void GLProgramUniformV<Mat2>::Bind(const Mat2* values, size_t count) const
+    {
+        OSE_ASSERT(count <= size, "Wrong size of array uniform");
+        glUniformMatrix2fv(location, count, GL_TRUE, reinterpret_cast<const float*>(&values));
+    }
+
     //mat3
     template<>
     void GLProgramUniform<Mat3>::Bind(const Mat3& value) const
     {
         glUniformMatrix3fv(location, 1, GL_TRUE, reinterpret_cast<const float*>(&value));
+    }
+
+    template<>
+    void GLProgramUniformV<Mat3>::Bind(const Mat3* values, size_t count) const
+    {
+        OSE_ASSERT(count <= size, "Wrong size of array uniform");
+        glUniformMatrix3fv(location, count, GL_TRUE, reinterpret_cast<const float*>(&values));
     }
 
     //mat4
@@ -139,4 +153,12 @@ namespace OSE {
     {
         glUniformMatrix4fv(location, 1, GL_TRUE, reinterpret_cast<const float*>(&value));
     }
+
+    template<>
+    void GLProgramUniformV<Mat4>::Bind(const Mat4* values, size_t count) const
+    {
+        OSE_ASSERT(count <= size, "Wrong size of array uniform");
+        glUniformMatrix4fv(location, count, GL_TRUE, reinterpret_cast<const float*>(&values));
+    }
+
 }

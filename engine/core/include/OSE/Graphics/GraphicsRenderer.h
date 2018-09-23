@@ -3,6 +3,8 @@
 #include "OSE/Graphics/GraphicsResourceDescriptor.h"
 #include "OSE/Graphics/ResourceID.h"
 #include "OSE/TypeDefs.h"
+#include "OSE/Math/Vector.h"
+#include "OSE/Math/Matrix.h"
 
 #include <string>
 
@@ -21,12 +23,6 @@ namespace OSE {
         virtual ~GraphicsRenderer() = default;
 
         virtual void BindProgram(ProgramHandle handle) = 0;
-
-        virtual void SetProgramUniform(const ProgramUniform& uniform, int value) = 0;
-        virtual void SetProgramUniform(const ProgramUniform& uniform, const int* values, size_t count) = 0;
-        virtual void SetProgramUniform(const ProgramUniform& uniform, float value) = 0;
-        virtual void SetProgramUniform(const ProgramUniform& uniform, const float* values, size_t count) = 0;
-
         virtual void BindTexture(TextureHandle handle, uint slot = 0) = 0;
 
         virtual void Draw(VertexLayoutHandle layout, RenderPrimitive primitive,

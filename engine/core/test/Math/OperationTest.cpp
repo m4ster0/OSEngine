@@ -6,7 +6,7 @@
 BOOST_AUTO_TEST_CASE(VectorLengthTest)
 {
     OSE::Vec2 vec{ 1.0f, 0.0f };
-    float len = OSE::length(vec);
+    float len = OSE::Math::length(vec);
 
     BOOST_CHECK(len == 1.0f);
 }

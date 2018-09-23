@@ -1,7 +1,7 @@
 %%vertex
 #version 330 core
 
-in vec2 aPosition;
+in vec3 aPosition;
 in vec3 aColor;
 in vec2 aTexCoord0;
 
@@ -9,14 +9,17 @@ out vec3 vColor;
 out vec2 vTexCoord0;
 
 uniform float time;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
     vColor = aColor;
     vTexCoord0 = aTexCoord0;
-    float posX = aPosition.x + max(0, aPosition.y) / aPosition.y * 0.2 * sin(time / 2.0);
-    float posY = aPosition.y + max(0, aPosition.y) / aPosition.y * 0.1 * cos(sin(time) * 6.14);
-    gl_Position = vec4(posX, aPosition.y, 0, 1.0);
+    //float posX = aPosition.x + max(0, aPosition.y) / aPosition.y * 0.2 * sin(time / 2.0);
+    //float posY = aPosition.y + max(0, aPosition.y) / aPosition.y * 0.1 * cos(sin(time) * 6.14);
+    gl_Position = vec4(aPosition, 1.0) * model * view * projection;
 }
 %%vertex
 

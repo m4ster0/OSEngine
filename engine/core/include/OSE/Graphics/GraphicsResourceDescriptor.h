@@ -20,13 +20,6 @@ namespace OSE {
         std::string src;
     };
 
-    struct ProgramUniform
-    {
-        std::string name;
-
-        virtual ~ProgramUniform() = default;
-    };
-
     std::vector<ShaderDescriptor> shaderDescriptorsFromSources(const std::string& vertSrc, const std::string& fragSrc);
     std::vector<ShaderDescriptor> shaderDescriptorsFromSource(const std::string& singleSrc);
 

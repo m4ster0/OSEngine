@@ -18,7 +18,6 @@ namespace OSE {
         LEVEL_ERROR
     };
 
-    //add potentially multithreading safety
     class Logger
     {
     public:

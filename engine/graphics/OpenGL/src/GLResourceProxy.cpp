@@ -24,13 +24,6 @@ namespace OSE {
         return handle;
     }
 
-    const ProgramUniform* GLResourceProxy::GetProgramUniform(ProgramHandle handle, const std::string& name)
-    {
-        OSE_ASSERT(m_Context, "Context has been destroyed. ResourceProxy must be recreated onLoad");
-        GLProgram* program = m_Context->m_ProgramResources.At(handle.GetID());
-        return program->GetUniform(name);
-    }
-
     void GLResourceProxy::DisposeProgram(ProgramHandle handle)
     {
         OSE_ASSERT(m_Context, "Context has been destroyed. ResourceProxy must be recreated onLoad");
@@ -142,5 +135,12 @@ namespace OSE {
         OSE_ASSERT(handle, "Texture handle is invalid");
 
         m_Context->m_TextureResources.Remove(handle.GetID());
+    }
+
+    const ProgramUniformBase* GLResourceProxy::GetUniform(ProgramHandle handle, const std::string& name) const
+    {
+        OSE_ASSERT(m_Context, "Context has been destroyed. ResourceProxy must be recreated onLoad");
+        GLProgram* program = m_Context->m_ProgramResources.At(handle.GetID());
+        return program->GetUniform(name);
     }
 }

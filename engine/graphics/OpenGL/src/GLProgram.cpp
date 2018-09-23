@@ -50,10 +50,7 @@ namespace OSE {
 
         uint handle{ 0 };
 
-        GLShader(const GLShader& other) = delete;
         GLShader(GLShader&& other) = delete;
-
-        GLShader& operator=(const GLShader& other) = delete;
         GLShader& operator=(GLShader&& other) = delete;
 
         ~GLShader()
@@ -154,14 +151,15 @@ namespace OSE {
                 GLCall(glGetActiveUniform(m_Handle, i, nameLength, NULL, &uniformSize, &uniformType, rawUniformName.get()));
                 std::string uniformName{ formatName(rawUniformName.get()) };
 
-                std::unique_ptr<ProgramUniform> uniform = CreateUniform(uniformName, uniformType, uniformSize);
+                std::unique_ptr<ProgramUniformBase> uniform = CreateUniform(uniformName, uniformType, uniformSize);
+                uniform->program = ProgramHandle(rid);
                 uniform->name = uniformName;
                 m_Uniforms[uniformName] = std::move(uniform);
             }
         }
     }
 
-    std::unique_ptr<ProgramUniform> GLProgram::CreateUniform(const std::string& name, uint type, int size)
+    std::unique_ptr<ProgramUniformBase> GLProgram::CreateUniform(const std::string& name, uint type, int size)
     {
         int location = GetUniformLocation(name);
         OSE_ASSERT(location >= 0, name + " uniform does not correspond to an active uniform");
@@ -212,7 +210,7 @@ namespace OSE {
         GLCall(glUseProgram(m_Handle));
     }
 
-    ProgramUniform* GLProgram::GetUniform(const std::string& name) const
+    ProgramUniformBase* GLProgram::GetUniform(const std::string& name) const
     {
         auto it = m_Uniforms.find(name);
         if (it != m_Uniforms.end())

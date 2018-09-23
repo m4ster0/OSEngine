@@ -2,6 +2,9 @@ set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src )
 set( INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
 set(SRC_FILES
+    ${SRC_DIR}/Math/Geometry.cpp
+    ${SRC_DIR}/Math/Plane.cpp
+    ${SRC_DIR}/Math/Cube.cpp
     ${SRC_DIR}/Timer.cpp
     ${SRC_DIR}/Logger.cpp
     ${SRC_DIR}/GraphicsResourceDescriptor.cpp

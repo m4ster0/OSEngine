@@ -8,6 +8,7 @@
 #include <OSE/Log.h>
 #include <OSE/TypeDefs.h>
 #include <OSE/System/FileSystem.h>
+#include <OSE/Math/Geometry/Cube.h>
 
 #include <string>
 #include <iostream>
@@ -37,6 +38,8 @@ TestGame::~TestGame() {}
 
 void TestGame::OnStart()
 {
+    view = OSE::Math::translate(OSE::Vec3{ 0.0f, 0.0f, -3.0f });
+    projection = OSE::Math::perspective(OSE::Math::toRadians(45.0f), 800.0f / 480.0f, 0.1f, 100.0f);
 }
 
 void TestGame::OnLoad()
@@ -89,9 +92,12 @@ void TestGame::OnLoad()
 
     material.program = programHandle;
 
-    material.tex0sampler = resProxy->GetProgramUniform(programHandle, "texture0");
-    material.tex1sampler = resProxy->GetProgramUniform(programHandle, "texture1");
-    material.timeUniform = resProxy->GetProgramUniform(programHandle, "time");
+    material.tex0sampler = resProxy->GetProgramUniform<int>(programHandle, "texture0");
+    material.tex1sampler = resProxy->GetProgramUniform<int>(programHandle, "texture1");
+    material.timeUniform = resProxy->GetProgramUniform<float>(programHandle, "time");
+    material.modelUniform = resProxy->GetProgramUniform<OSE::Mat4>(programHandle, "model");
+    material.viewUniform = resProxy->GetProgramUniform<OSE::Mat4>(programHandle, "view");
+    material.projUniform = resProxy->GetProgramUniform<OSE::Mat4>(programHandle, "projection");
 
     std::unique_ptr<OSE::Image> image{ nullptr };
     image = OSE::ImageFactory::decode(fileSystem, "assets", "Assets/Textures/container.jpg", { OSE::Image::Format::RGB, false });
@@ -112,19 +118,19 @@ void TestGame::OnLoad()
 
     float positions1[] =
     {
-        -0.8f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        -0.8f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-        -0.2f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-        -0.2f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f
+        -1.0f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        -1.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.0f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+        -0.0f, 0.5f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f
     };
 
     constexpr size_t positions1Count = sizeof(positions1) / sizeof(positions1[0]);
 
     std::vector<float> positions2 =
     {
-        0.2f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
-        0.8f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f
+        -0.25f, 0.25f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, -0.25f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f,
+        0.25f, 0.25f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f
     };
 
     std::vector<OSE::uint16> indices1 =
@@ -138,16 +144,24 @@ void TestGame::OnLoad()
         0, 1, 2
     };
 
-    std::vector<OSE::VertexAttributeDescriptor> attrDescs = { {OSE::VertexAttrType::Position, 2}, {OSE::VertexAttrType::Color, 3}, {OSE::VertexAttrType::TexCoord0, 2} };
+    std::vector<OSE::VertexAttributeDescriptor> attrDescs = { {OSE::VertexAttrType::Position, 3}, {OSE::VertexAttrType::Normal, 3}, {OSE::VertexAttrType::TexCoord0, 2} };
     OSE::VertexLayoutHandle vertLayout = resProxy->CreateVertexLayout(attrDescs);
 
-    triangle1.layout = vertLayout;
-    PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
+    OSE::Geometry cubeGeometry = OSE::CubeBuilder()
+        .normals()
+        .uv()
+        .build();
 
-    triangle2.layout = vertLayout;
-    PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
+    cube.layout = vertLayout;
+    PopulateMesh(*resProxy, cube, &cubeGeometry.vertices[0], cubeGeometry.vertices.size(), &cubeGeometry.indices[0], cubeGeometry.indices.size());
+    resProxy->GroupVertices(cube.layout, cube.vertexBuffer, cube.indexBuffer);
+    //triangle1.layout = vertLayout;
+    //PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
 
-    resProxy->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
+    //triangle2.layout = vertLayout;
+    //PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
+
+    //resProxy->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
 
 
     renderer = OSE::Platform::Instance().GetGraphicsDevice().CreateRenderer();
@@ -201,23 +215,28 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ////bind material
-    ////set global uniforms and textures
-    //float correction1 = (sin(gameTime.total.Seconds() * 2.0) / 2.0) + 0.5;
-    //float correction2 = (sin(gameTime.total.Seconds()) / 2.0) + 0.5;
-    //shader->Use();
-
+    float gameTimeSecs = (float) gameTime.total.Seconds();
+    OSE::Mat4 translate = OSE::Math::translate(OSE::Vec3{ 1.0f, 0, 0 });
+    OSE::Mat4 rotate = OSE::Math::rotate(OSE::Math::toRadians(50.0f) * gameTimeSecs, OSE::Vec3{ 1.0f, 1.0f, 1.0f });
 
     renderer->BindProgram(material.program);
     renderer->BindTexture(material.tex0, 0);
     renderer->BindTexture(material.tex1, 1);
-    renderer->SetProgramUniform(*material.tex0sampler, 0);
-    renderer->SetProgramUniform(*material.tex1sampler, 1);
-    renderer->SetProgramUniform(*material.timeUniform, (float) gameTime.total.Seconds());
 
-    renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
-        triangle1.vertexBuffer, triangle1.indexBuffer);
+    material.viewUniform->Bind(view);
+    material.projUniform->Bind(projection);
 
-    renderer->Draw(triangle2.layout, OSE::RenderPrimitive::Triangles,
-        triangle2.vertexBuffer);
+    //pass renderer to check for currently bound program or leave it for user?
+    material.tex0sampler->Bind(0);
+    material.tex1sampler->Bind(1);
+    //material.timeUniform->Bind((float)gameTime.total.Seconds());
+    material.modelUniform->Bind(rotate);
+    renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
+        cube.vertexBuffer, cube.indexBuffer);
+
+    //renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
+    //    triangle1.vertexBuffer, triangle1.indexBuffer);
+    //material.transformUniform->Bind(OSE::Mat4{});
+    //renderer->Draw(triangle2.layout, OSE::RenderPrimitive::Triangles,
+    //    triangle2.vertexBuffer);
 }

@@ -4,6 +4,9 @@
 #include <OSE/Graphics/GraphicsDevice.h>
 #include <OSE/Graphics/GraphicsRenderer.h>
 #include <OSE/Graphics/GraphicsResourceDescriptor.h>
+#include <OSE/Graphics/GraphicsProgramUniform.h>
+#include <OSE/Math/Math.h>
+
 
 #include <OSE/Game.h>
 #include <OSE/TypeDefs.h>
@@ -15,9 +18,12 @@ struct Material
     OSE::TextureHandle tex0;
     OSE::TextureHandle tex1;
     OSE::ProgramHandle program;
-    const OSE::ProgramUniform* tex0sampler;
-    const OSE::ProgramUniform* tex1sampler;
-    const OSE::ProgramUniform* timeUniform;
+    const OSE::ProgramUniform<int>* tex0sampler;
+    const OSE::ProgramUniform<int>* tex1sampler;
+    const OSE::ProgramUniform<float>* timeUniform;
+    const OSE::ProgramUniform<OSE::Mat4>* modelUniform;
+    const OSE::ProgramUniform<OSE::Mat4>* viewUniform;
+    const OSE::ProgramUniform<OSE::Mat4>* projUniform;
 };
 
 struct Mesh
@@ -50,4 +56,8 @@ private:
     Material material;
     Mesh triangle1;
     Mesh triangle2;
+    Mesh cube;
+
+    OSE::Mat4 view;
+    OSE::Mat4 projection;
 };
