@@ -8,6 +8,18 @@
 
 namespace OSE {
 
+    struct EnumTypeHasher
+    {
+        template<typename T>
+        using EnumType = std::enable_if<std::is_enum<T>::value>;
+
+        template<typename T, typename = EnumType<T>>
+        std::size_t operator()(T t) const
+        {
+            return static_cast<std::size_t>(t);
+        }
+    };
+
     struct ShaderDescriptor
     {
         enum class Type: byte
@@ -34,7 +46,7 @@ namespace OSE {
             TexCoord1
         };
 
-        static std::unordered_map<Type, std::string> TypeName;
+        static std::unordered_map<Type, std::string, EnumTypeHasher> TypeName;
 
         Type type;
         size_t size{ 0 };
@@ -68,8 +80,7 @@ namespace OSE {
         {
             Repeat,
             MirrorRepeat,
-            EdgeClamp,
-            BorderClamp
+            EdgeClamp
         };
 
         enum class Filter : byte

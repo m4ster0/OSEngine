@@ -6,7 +6,7 @@ namespace OSE {
 
     using AttrType = VertexAttributeDescriptor::Type;
 
-    std::unordered_map<AttrType, std::string> VertexAttributeDescriptor::TypeName = {
+    std::unordered_map<AttrType, std::string, EnumTypeHasher> VertexAttributeDescriptor::TypeName = {
         {AttrType::Position     , "aPosition"},
         {AttrType::Normal       , "aNormal"},
         {AttrType::Color        , "aColor"},
@@ -25,7 +25,7 @@ namespace OSE {
     {
         using ShaderT = ShaderDescriptor::Type;
 
-        static std::unordered_map<ShaderT, std::string> names = {
+        static std::unordered_map<ShaderT, std::string, EnumTypeHasher> names = {
             { ShaderT::Vertex, "vertex" },
             { ShaderT::Fragment, "fragment" }
         };

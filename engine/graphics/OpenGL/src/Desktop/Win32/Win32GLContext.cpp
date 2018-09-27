@@ -43,8 +43,8 @@ namespace OSE {
         BOOL activeHRC = wglMakeCurrent(dummyHDC, m_HRC);
         OSE_ASSERT(activeHRC, "Opengl context could not be set as current");
 
-        GLenum glew = glewInit();
-        OSE_ASSERT(glew == GLEW_OK, "Failed to init glew");
+        int glad = gladLoadGL();
+        OSE_ASSERT(glad, "Failed to init glad");
 
         //std::cout << glGetString(GL_VERSION) << std::endl;
         //std::cout << "-----------" << std::endl;

@@ -35,7 +35,7 @@ namespace OSE {
     bool AndroidAssetFileSync::SeekCurrent(int64 offset)
     {
         int64 result = ::AAsset_seek64(m_Asset, offset, SEEK_CUR);
-        return result == position;
+        return result == ::AAsset_seek64(m_Asset, 0, SEEK_CUR);
     }
 
     int64 AndroidAssetFileSync::Tell()

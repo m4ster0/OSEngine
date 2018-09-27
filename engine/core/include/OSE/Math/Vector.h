@@ -103,11 +103,7 @@ namespace OSE {
                 T z;
             };
 
-            struct
-            {
-                Vector<T, 2> xy;
-                T z;
-            };
+            Vector<T, 2> xy;
         };
 
         Vector() = default;
@@ -126,7 +122,7 @@ namespace OSE {
                 components[index] = *it;
         }
 
-        Vector(const Vector<T, 2>& xy, const T& z): xy{ xy }, z{ z }
+        Vector(const Vector<T, 2>& xy, const T& z): x{ xy.x }, y{ xy.y }, z{ z }
         {
 
         }
@@ -160,18 +156,8 @@ namespace OSE {
                 T w;
             };
 
-            struct
-            {
-                Vector<T, 2> xy;
-                T z;
-                T w;
-            };
-
-            struct
-            {
-                Vector<T, 3> xyz;
-                T w;
-            };
+            Vector<T, 2> xy;
+            Vector<T, 3> xyz;
         };
 
         Vector() = default;
@@ -182,7 +168,7 @@ namespace OSE {
 
         }
 
-        Vector(const std::initializer_list<T> args):
+        Vector(const std::initializer_list<T> args)
         {
             assert(args.size() <= 4);
 
@@ -192,13 +178,13 @@ namespace OSE {
         }
 
         Vector(const Vector<T, 2>& xy, const T& z, const T& w):
-            xy{ xy }, z{ z }, w{ w }
+            x{ xy.x }, y{ xy.y }, z{ z }, w{ w }
         {
 
         }
 
         Vector(const Vector<T, 3>& xyz, const T& w) :
-            xyz{ xyz }, w{ w }
+                x{ xyz.x }, y{ xyz.y }, z{ xyz.z }, w{ w }
         {
 
         }

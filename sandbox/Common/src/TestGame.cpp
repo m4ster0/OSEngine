@@ -38,7 +38,7 @@ TestGame::~TestGame() {}
 
 void TestGame::OnStart()
 {
-    view = OSE::Math::translate(OSE::Vec3{ 0.0f, 0.0f, -3.0f });
+    view = OSE::Math::lookAt(OSE::Vec3{ 10.0f, 3.0f, -3.0f }, OSE::Vec3{ 0, 0, 0}, OSE::Vec3::YAxis);
     projection = OSE::Math::perspective(OSE::Math::toRadians(45.0f), 800.0f / 480.0f, 0.1f, 100.0f);
 }
 
@@ -46,7 +46,7 @@ void TestGame::OnLoad()
 {
     glViewport(0, 0, 800, 480);
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.2f, 0.2f, 0.8f, 1.0f);
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     OSE::FileSystem fileSystem{ };
 
@@ -115,6 +115,10 @@ void TestGame::OnLoad()
         material.tex1 = resProxy->CreateTexture(texDesc, image.get());
         image->Dispose();
     }
+
+    //fileSystem.OpenFileASync("device", "path") -> File
+    //      .flatMap([](file){ ImageFactory::decodeAsync(file, ImageFormat{}) })
+    //      .flatMap([](image){  })
 
     float positions1[] =
     {
@@ -216,8 +220,8 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float gameTimeSecs = (float) gameTime.total.Seconds();
-    OSE::Mat4 translate = OSE::Math::translate(OSE::Vec3{ 1.0f, 0, 0 });
-    OSE::Mat4 rotate = OSE::Math::rotate(OSE::Math::toRadians(50.0f) * gameTimeSecs, OSE::Vec3{ 1.0f, 1.0f, 1.0f });
+    OSE::Mat4 translate = OSE::Math::translate(OSE::Vec3{ 2.0f, 2.0f, 0.0f });
+    OSE::Mat4 rotate = OSE::Math::rotate(OSE::Math::toRadians(50.0f) * gameTimeSecs, OSE::Vec3{ 1.0f, 1.0f, -1.0f });
 
     renderer->BindProgram(material.program);
     renderer->BindTexture(material.tex0, 0);
@@ -230,7 +234,11 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     material.tex0sampler->Bind(0);
     material.tex1sampler->Bind(1);
     //material.timeUniform->Bind((float)gameTime.total.Seconds());
-    material.modelUniform->Bind(rotate);
+    material.modelUniform->Bind(rotate * translate);
+    renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
+        cube.vertexBuffer, cube.indexBuffer);
+
+    material.modelUniform->Bind(OSE::Mat4{});
     renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
         cube.vertexBuffer, cube.indexBuffer);
 

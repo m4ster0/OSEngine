@@ -4,7 +4,7 @@ project(oceansoul-engine)
 
 option( ose-cmake_BUILD_TESTS "Build tests" ON )
 
-if ( ose-cmake_BUILD_TESTS )
+if ( (NOT ANDROID) AND ose-cmake_BUILD_TESTS )
     set(Boost_USE_STATIC_LIBS ON)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
     enable_testing()

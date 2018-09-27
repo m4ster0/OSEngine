@@ -65,13 +65,16 @@ namespace OSE {
 
     void GLVertexArray::MakeVAOInternal(const GLBuffer& vbo, const GLBuffer* ibo)
     {
-        int64 vaoHandle = GetVAOHandle(vbo, ibo);
-        auto it = m_VAOs.find(vaoHandle);
-        if (vaoHandle >= 0 && it == m_VAOs.end())
+        if (oseCheckGLExtension<oseGLExtension::VertexArrayObject>())
         {
-            m_VAOs[vaoHandle] = std::unique_ptr<GLVertexArrayObject>{ new GLVertexArrayObject };
-            GLCall(glBindVertexArray(m_VAOs[vaoHandle]->handle));
-            BindVerbose(vbo, ibo);
+            int64 vaoHandle = GetVAOHandle(vbo, ibo);
+            auto it = m_VAOs.find(vaoHandle);
+            if (vaoHandle >= 0 && it == m_VAOs.end())
+            {
+                m_VAOs[vaoHandle] = std::unique_ptr<GLVertexArrayObject>{ new GLVertexArrayObject };
+                GLCall(glBindVertexArray(m_VAOs[vaoHandle]->handle));
+                BindVerbose(vbo, ibo);
+            }
         }
     }
 

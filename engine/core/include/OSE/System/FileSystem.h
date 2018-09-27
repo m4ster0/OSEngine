@@ -41,6 +41,8 @@ namespace OSE {
 
         std::unique_ptr<File> OpenFileSync(const std::string& devicePath, FileMode mode) const;
         std::unique_ptr<File> OpenFileSync(const std::string& deviceType, const std::string& path, FileMode mode) const;
+        //std::option<File> OpenFileSync(const std::string& devicePath, FileMode mode) const;
+        //std::option<File> OpenFileSync(const std::string& deviceType, const std::string& path, FileMode mode) const;
 
     private:
         static DeviceList s_SharedDevices;

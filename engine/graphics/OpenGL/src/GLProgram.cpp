@@ -98,7 +98,7 @@ namespace OSE {
             }
         }
 
-        const std::unordered_map<VertexAttrType, std::string>& attrTypes = VertexAttributeDescriptor::TypeName;
+        std::unordered_map<VertexAttrType, std::string, EnumTypeHasher>& attrTypes = VertexAttributeDescriptor::TypeName;
         for (auto it = attrTypes.begin(); it != attrTypes.end(); ++it)
         {
             uint location{ static_cast<uint>(it->first) }; //VertexAttribute::Type enum value corresponds to location in shader
@@ -130,7 +130,7 @@ namespace OSE {
         GLCall(glGetProgramiv(m_Handle, GL_ACTIVE_UNIFORM_MAX_LENGTH, &nameLength));
         if (activeUniforms && nameLength)
         {
-            auto formatName = [](const char* name) {
+            auto formatName = [](const char* name) -> std::string {
                 int len = std::strlen(name);
                 auto endsWith = [name, len](const char* ending) {
                     int endingStart = len - std::strlen(ending);
@@ -169,7 +169,6 @@ namespace OSE {
             return createGLProgramUniform<float>(rid, location, size);
         case GL_INT:
         case GL_SAMPLER_2D:
-        case GL_SAMPLER_3D:
             return createGLProgramUniform<int>(rid, location, size);
         case GL_FLOAT_VEC2:
             return createGLProgramUniform<Vec2>(rid, location, size);

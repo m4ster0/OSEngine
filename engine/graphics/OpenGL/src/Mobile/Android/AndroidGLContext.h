@@ -1,7 +1,6 @@
 #pragma once
 
-#include <OSE/Graphics/GraphicsContext.h>
-#include <OSE/Graphics/Resource.h>
+#include "OSE/Graphics/GLContext.h"
 
 #include <unordered_map>
 #include <memory>
@@ -9,11 +8,11 @@
 #include <EGL/egl.h>
 
 namespace OSE {
-    class AndroidGLContext : public GraphicsContext
+    class AndroidGLContext : public GLContext
     {
         friend class GLDevice;
 
-        struct AndroidGLSwapChain : public Resource<AndroidGLSwapChain>
+        struct AndroidGLSwapChain
         {
             EGLDisplay display{ EGL_NO_DISPLAY };
             EGLSurface surface{ EGL_NO_SURFACE };
@@ -23,7 +22,7 @@ namespace OSE {
                 Dispose();
             }
 
-            void Dispose() override
+            void Dispose()
             {
                 if (surface != EGL_NO_SURFACE)
                     eglDestroySurface(display, surface);
@@ -34,17 +33,20 @@ namespace OSE {
         EGLContext m_Context{ EGL_NO_CONTEXT };
         EGLConfig m_Config{ nullptr };
 
-        std::unordered_map<ResourceID, std::unique_ptr<AndroidGLSwapChain>, ResourceID::Hasher> m_SwapChains;
+        SwapChainHandle m_ActiveSwapChain;
+        std::unordered_map<SwapChainHandle, std::unique_ptr<AndroidGLSwapChain>> m_SwapChains;
 
     public:
         ~AndroidGLContext();
-        virtual bool IsValid() override;
+        bool IsValid() override;
 
-        virtual ResourceID CreateSwapChain(void* windowHandle) override;
-        virtual void DestroySwapChain(ResourceID handle) override;
+        SwapChainHandle CreateSwapChain(void* windowHandle) override;
+        void DestroySwapChain(SwapChainHandle handle) override;
 
-        virtual bool MakeCurrent(ResourceID handle) override;
-        virtual bool Present(ResourceID handle) override;
+        bool MakeCurrent(SwapChainHandle handle) override;
+        bool Present(SwapChainHandle handle) override;
+
+        void Dispose() override;
 
     protected:
         AndroidGLContext();

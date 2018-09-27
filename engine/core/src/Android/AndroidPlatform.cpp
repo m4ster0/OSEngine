@@ -39,7 +39,7 @@ namespace OSE {
         if (m_WindowHandle)
         {
             m_GraphicsDevice->DestroySwapChain(m_WindowSCHandle);
-            m_WindowSCHandle = ResourceID::Invalid;
+            m_WindowSCHandle = 0;
             m_WindowHandle = nullptr;
         }
     }

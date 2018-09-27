@@ -78,8 +78,10 @@ namespace OSE {
         return true;
     }
 
-    ResourceID AndroidGLContext::CreateSwapChain(void* windowHandle)
+    SwapChainHandle AndroidGLContext::CreateSwapChain(void* windowHandle)
     {
+        static SwapChainHandle Counter{ 0 };
+
         ANativeWindow* window = (ANativeWindow*) windowHandle;
 
         EGLint format;
@@ -90,31 +92,31 @@ namespace OSE {
         swapChain->display = m_Display;
         swapChain->surface = eglCreateWindowSurface(m_Display, m_Config, window, NULL);
 
-        ResourceID rid = ResourceID::Invalid;
+        SwapChainHandle rid = 0;
         if (swapChain->surface != NULL)
         {
-            rid = swapChain->GetRID();
+            rid = ++Counter;
             m_SwapChains[rid] = std::move(swapChain);
         }
 
         return rid;
     }
 
-    void AndroidGLContext::DestroySwapChain(ResourceID handle)
+    void AndroidGLContext::DestroySwapChain(SwapChainHandle handle)
     {
         if (m_SwapChains.find(handle) != m_SwapChains.end())
         {
             if (handle == m_ActiveSwapChain)
             {
                 eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
-                m_ActiveSwapChain = ResourceID::Invalid;
+                m_ActiveSwapChain = 0;
             }
 
             m_SwapChains.erase(handle);
         }
     }
 
-    bool AndroidGLContext::MakeCurrent(ResourceID handle)
+    bool AndroidGLContext::MakeCurrent(SwapChainHandle handle)
     {
         if (handle)
         {
@@ -132,7 +134,7 @@ namespace OSE {
         return false;
     }
 
-    bool AndroidGLContext::Present(ResourceID handle)
+    bool AndroidGLContext::Present(SwapChainHandle handle)
     {
         if (handle && handle == m_ActiveSwapChain)
             return eglSwapBuffers(m_SwapChains[handle]->display, m_SwapChains[handle]->surface) == EGL_TRUE;

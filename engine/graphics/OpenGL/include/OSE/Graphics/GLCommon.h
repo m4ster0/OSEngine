@@ -2,18 +2,25 @@
 
 #include <OSE/Log.h>
 
-#if defined(WIN32)
-    #include <GL/glew.h>
-#elif defined(ANDROID)
-    #include <GLES2/gl2.h>
-#endif
+#include <glad/glad.h>
 
-static void ClearGLError()
+enum class oseGLExtension
+{
+    VertexArrayObject
+};
+
+template<oseGLExtension extension>
+bool oseCheckGLExtension() = delete;
+
+template<>
+bool oseCheckGLExtension<oseGLExtension::VertexArrayObject>();
+
+inline void oseClearGLError()
 {
     while (glGetError() != GL_NO_ERROR);
 }
 
-static void CheckGLError(const char* file, int line)
+inline void oseCheckGLError(const char* file, int line)
 {
     while (GLenum error = glGetError())
     {
@@ -23,9 +30,9 @@ static void CheckGLError(const char* file, int line)
 
 #ifdef DEBUG_OSE
     #define GLCall(x)   { \
-                        ClearGLError(); \
+                        oseClearGLError(); \
                         x; \
-                        CheckGLError(__FILE__, __LINE__); \
+                        oseCheckGLError(__FILE__, __LINE__); \
                         }
 #else
     #define GLCall(x) x;

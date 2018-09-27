@@ -80,7 +80,7 @@ target_compile_definitions( oceansoul-core
                             PUBLIC $<$<CONFIG:DEBUG>:DEBUG_OSE> )
 
 # tests
-if ( ose-cmake_BUILD_TESTS )
+if ( (NOT ANDROID) AND ose-cmake_BUILD_TESTS )
     set(TEST_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test )
 
     set(TEST_SRC

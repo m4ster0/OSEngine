@@ -3,6 +3,22 @@ set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src )
 set( PLATFORM_INCLUDE_DIR ${SRC_DIR} )
 set( INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 
+if ( WIN32 OR _APPLE_ )
+    find_package(OpenGL REQUIRED)
+
+    add_library( glad STATIC ${SRC_DIR}/Desktop/Vendor/glad/src/glad.c )
+    target_include_directories( glad PUBLIC ${SRC_DIR}/Desktop/Vendor/glad/include )
+
+    target_link_libraries( glad ${OPENGL_gl_LIBRARY} )
+endif ( )
+
+if ( ANDROID OR IOS )
+    add_library( glad STATIC ${SRC_DIR}/Mobile/Vendor/glad/src/glad.c )
+    target_include_directories( glad PUBLIC ${SRC_DIR}/Mobile/Vendor/glad/include )
+
+    target_link_libraries( glad GLESv2 )
+endif ( )
+
 set( SOURCES
    ${SRC_DIR}/GLDevice.cpp
    ${SRC_DIR}/GLContext.cpp
@@ -18,23 +34,35 @@ set( SOURCES
 set( PLATFORM_LIBRARIES )
 
 if ( ANDROID )
-    set( PLATFORM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Android )
+    set( PLATFORM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Mobile/Android )
     list( APPEND SOURCES
-        ${SRC_DIR}/Android/AndroidGLContext.cpp
-        ${SRC_DIR}/Android/AndroidGLDevice.cpp )
+        ${SRC_DIR}/Mobile/Android/AndroidGLContext.cpp
+        ${SRC_DIR}/Mobile/Android/AndroidGLDevice.cpp )
     list( APPEND PLATFORM_LIBRARIES
         EGL
-        GLESv2 )
+        glad )
 endif (  )
 
-if ( WIN32 )
-    set( PLATFORM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Win32 )
+if( ANDROID OR IOS )
     list( APPEND SOURCES
-        ${SRC_DIR}/Win32/Win32GLContext.cpp
-        ${SRC_DIR}/Win32/Win32GLDevice.cpp )
-    list( APPEND PLATFORM_LIBRARIES
-        libglew_static )
+        ${SRC_DIR}/Mobile/GLExtensions.cpp )
 endif (  )
+
+
+if ( WIN32 )
+    set( PLATFORM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/Desktop/Win32 )
+    list( APPEND SOURCES
+        ${SRC_DIR}/Desktop/Win32/Win32GLContext.cpp
+        ${SRC_DIR}/Desktop/Win32/Win32GLDevice.cpp )
+    list( APPEND PLATFORM_LIBRARIES
+        glad )
+endif (  )
+
+if ( WIN32 OR _APPLE_ )
+    list( APPEND SOURCES
+        ${SRC_DIR}/Desktop/GLExtensions.cpp )
+endif (  )
+
 
 add_library( oceansoul-graphics-gl STATIC ${SOURCES} )
 

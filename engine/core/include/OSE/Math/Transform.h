@@ -59,6 +59,27 @@ namespace OSE { namespace Math {
         }
 
         template<typename T, typename = FPEnabled<T>>
+        Matrix<T, 4, 4> lookAt(const Vector<T, 3>& eye, const Vector<T, 3>& at, const Vector<T, 3>& up)
+        {
+            Matrix<T, 4, 4> result;
+
+            Vector<T, 3> zAxis = Math::normalize(at - eye);
+            Vector<T, 3> xAxis = Math::normalize(Math::cross(up, zAxis));
+            Vector<T, 3> yAxis = cross(zAxis, xAxis);
+
+            result[0].xyz = Vector<T, 3>{ xAxis.x, yAxis.x, -zAxis.x };
+            result[1].xyz = Vector<T, 3>{ xAxis.y, yAxis.y, -zAxis.y };
+            result[2].xyz = Vector<T, 3>{ xAxis.z, yAxis.z, -zAxis.z };
+            result[3].xyz = Vector<T, 3>{ Math::dot(xAxis, -eye), Math::dot(yAxis, -eye), -Math::dot(zAxis, -eye) };
+
+            //if right handed coordinate flip z axis
+            //Matrix<T, 4, 4> flip;
+            //flip[2][2] = -1;
+
+            return result;
+        }
+
+        template<typename T, typename = FPEnabled<T>>
         Matrix<T, 4, 4> orthographic(T left, T right, T top, T bottom, T near, T far)
         {
             Matrix<T, 4, 4> result;

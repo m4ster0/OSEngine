@@ -34,8 +34,6 @@ namespace OSE {
             return GL_MIRRORED_REPEAT;
         case TexWrapType::EdgeClamp:
             return GL_CLAMP_TO_EDGE;
-        case TexWrapType::BorderClamp:
-            return GL_CLAMP_TO_BORDER;
         }
     }
 
