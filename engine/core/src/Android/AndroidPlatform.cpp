@@ -25,7 +25,7 @@ namespace OSE {
         if(m_WindowHandle == nullptr)
             return;
 
-        bool ctxRecreated = m_GraphicsDevice->Initialize(m_WindowHandle);
+        bool ctxRecreated = m_GraphicsDevice->Initialize(m_WindowHandle, {});
         m_WindowSCHandle = m_GraphicsDevice->CreateSwapChain(m_WindowHandle);
         m_GraphicsDevice->MakeCurrent(m_WindowSCHandle);
 

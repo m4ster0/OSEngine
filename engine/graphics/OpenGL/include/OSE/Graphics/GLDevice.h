@@ -22,10 +22,10 @@ namespace OSE {
     protected:
         std::unique_ptr<GLContext> m_ImmediateContext{ nullptr };
 
-        bool Initialize(void* windowHandle) override;
+        bool Initialize(const void* windowHandle, const GraphicsConfig& config) override;
         void Terminate() override;
 
-        void CreateContextInternal(void* windowHandle);
+        void CreateContextInternal(const void* windowHandle, const GraphicsConfig& config);
     };
 
 }

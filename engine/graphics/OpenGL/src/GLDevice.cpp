@@ -49,12 +49,12 @@ namespace OSE {
         return GraphicsAPI::OPENGL;
     }
 
-    bool GLDevice::Initialize(void* windowHandle)
+    bool GLDevice::Initialize(const void* windowHandle, const GraphicsConfig& config)
     {
         if (m_ImmediateContext == nullptr || !m_ImmediateContext->IsValid())
         {
             Terminate();
-            CreateContextInternal(windowHandle);
+            CreateContextInternal(windowHandle, config);
             return true;
         }
 

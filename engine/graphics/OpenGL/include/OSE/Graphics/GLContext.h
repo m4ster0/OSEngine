@@ -1,6 +1,7 @@
 #pragma once
 
 #include <OSE/TypeDefs.h>
+#include <OSE/Graphics/GraphicsConfiguration.h>
 
 #include "OSE/Graphics/ResourceStorage.h"
 #include "OSE/Graphics/GLProgram.h"
@@ -24,7 +25,6 @@ namespace OSE {
         ResourceStorage<GLTexture> m_TextureResources;
 
         ProgramHandle m_CurrentProgram;
-
     public:
         GLContext();
 
@@ -41,6 +41,8 @@ namespace OSE {
         virtual bool IsValid() = 0;
         virtual void Dispose();
 
+    protected:
+        GraphicsConfig m_CurrentConfig{ };
 
     };
 }

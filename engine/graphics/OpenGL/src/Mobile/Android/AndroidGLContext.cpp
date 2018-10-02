@@ -7,7 +7,7 @@
 
 namespace OSE {
 
-    AndroidGLContext::AndroidGLContext(void* windowHandle)
+    AndroidGLContext::AndroidGLContext(const void* windowHandle, const GraphicsConfig& config)
     {
         m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(m_Display, 0, 0);

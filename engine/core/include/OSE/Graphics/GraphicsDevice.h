@@ -3,6 +3,7 @@
 #include "OSE/Graphics/GraphicsResourceProxy.h"
 #include "OSE/Graphics/GraphicsRenderer.h"
 #include "OSE/Graphics/ResourceID.h"
+#include "OSE/Graphics/GraphicsConfiguration.h"
 
 #include "OSE/TypeDefs.h"
 
@@ -32,9 +33,10 @@ namespace OSE {
         virtual std::unique_ptr<GraphicsResourceProxy> CreateResourceProxy() = 0;
         virtual std::unique_ptr<GraphicsRenderer> CreateRenderer() = 0;
         virtual GraphicsAPI GetAPI() = 0;
+        //virtual const GraphicsConfig* GetCurrentConfig() const = 0;
 
     protected:
-        virtual bool Initialize(void* windowHandle) = 0;
+        virtual bool Initialize(const void* windowHandle, const GraphicsConfig& config) = 0;
         virtual void Terminate() = 0;
     };
 

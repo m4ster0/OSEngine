@@ -17,7 +17,7 @@ namespace OSE {
             NULL, NULL, g_WindowClass.hInstance, NULL);
     }
 
-    Win32GLContext::Win32GLContext(void* windowHandle)
+    Win32GLContext::Win32GLContext(const void* windowHandle, const GraphicsConfig& config)
     {
         HWND hwnd = (HWND) windowHandle;
         HDC dummyHDC = GetDC(hwnd);
@@ -37,6 +37,8 @@ namespace OSE {
         OSE_ASSERT(spf, "Pixel format set failed");
 
         DescribePixelFormat(dummyHDC, m_PixelFormat, sizeof(PIXELFORMATDESCRIPTOR), &m_PixelFormatDescriptor);
+
+        //save pixel format to current configuration
 
         m_HRC = wglCreateContext(dummyHDC);
         OSE_ASSERT(m_HRC, "Opengl context could not be created");

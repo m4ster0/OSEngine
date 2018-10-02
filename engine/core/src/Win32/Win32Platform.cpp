@@ -57,7 +57,7 @@ namespace OSE {
 
     void Platform::OnWindowCreate()
     {
-        m_GraphicsDevice->Initialize(m_WindowHandle);
+        m_GraphicsDevice->Initialize(m_WindowHandle, {});
 
         m_WindowSCHandle = m_GraphicsDevice->CreateSwapChain(m_WindowHandle);
         m_GraphicsDevice->MakeCurrent(m_WindowSCHandle);
