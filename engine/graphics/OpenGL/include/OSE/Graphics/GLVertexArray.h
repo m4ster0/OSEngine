@@ -26,10 +26,9 @@ namespace OSE {
 
         int64 GetVAOHandle(const GLBuffer& vbo, const GLBuffer* ibo);
 
-        size_t BindInternal(const GLBuffer& vbo, const GLBuffer* ibo, size_t count);
-        void MakeVAOInternal(const GLBuffer& vbo, const GLBuffer* ibo);
-
-        void BindVerbose(const GLBuffer& vbo, const GLBuffer* ibo);
+        void BindInternal(const GLBuffer& vbo, const GLBuffer* ibo);
+        void BindVAO(const GLBuffer& vbo, const GLBuffer* ibo);
+        void BindArrays(const GLBuffer& vbo, const GLBuffer* ibo);
 
     public:
         GLVertexArray(int32 id, const std::vector<VertexAttributeDescriptor>& attributes);
@@ -39,8 +38,7 @@ namespace OSE {
 
         ~GLVertexArray();
 
-        void MakeVAO(const GLBuffer& vbo);
-        void MakeVAO(const GLBuffer& vbo, const GLBuffer& ibo);
+        void MakeVAO(const GLBuffer& vbo, const GLBuffer* ibo);
 
         size_t Bind(const GLBuffer& vbo);
         size_t BindIndexed(const GLBuffer& vbo, const GLBuffer& ibo);

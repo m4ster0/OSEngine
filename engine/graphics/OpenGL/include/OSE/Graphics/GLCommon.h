@@ -15,6 +15,13 @@ bool oseCheckGLExtension() = delete;
 template<>
 bool oseCheckGLExtension<oseGLExtension::VertexArrayObject>();
 
+#ifdef ANDROID
+#define glBindVertexArray glBindVertexArrayOES
+#define glDeleteVertexArrays glDeleteVertexArraysOES
+#define glGenVertexArrays glGenVertexArraysOES
+#define glIsVertexArray glIsVertexArrayOES
+#endif
+
 inline void oseClearGLError()
 {
     while (glGetError() != GL_NO_ERROR);

@@ -34,7 +34,6 @@ namespace OSE {
         ATOM windowClassUId = RegisterClassEx(&g_WindowClass);
         OSE_ASSERT(windowClassUId, "Failed to register window class");
 
-        m_GraphicsDevice->Initialize();
 
         // wrap in some method potentially
         HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
@@ -58,6 +57,8 @@ namespace OSE {
 
     void Platform::OnWindowCreate()
     {
+        m_GraphicsDevice->Initialize(m_WindowHandle);
+
         m_WindowSCHandle = m_GraphicsDevice->CreateSwapChain(m_WindowHandle);
         m_GraphicsDevice->MakeCurrent(m_WindowSCHandle);
         m_Game->OnLoad();

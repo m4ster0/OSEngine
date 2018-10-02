@@ -1,4 +1,5 @@
 #include "AndroidGLContext.h"
+#include "OSE/Graphics/GLCommon.h"
 
 #include <OSE/Log.h>
 
@@ -6,7 +7,7 @@
 
 namespace OSE {
 
-    AndroidGLContext::AndroidGLContext()
+    AndroidGLContext::AndroidGLContext(void* windowHandle)
     {
         m_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         eglInitialize(m_Display, 0, 0);
@@ -17,6 +18,7 @@ namespace OSE {
             EGL_BLUE_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_RED_SIZE, 8,
+            EGL_DEPTH_SIZE, 24,
             EGL_NONE
         };
 
@@ -52,6 +54,15 @@ namespace OSE {
 
         m_Context = eglCreateContext(m_Display, m_Config, NULL, contextAttribs);
 
+        EGLSurface tmpSurface = eglCreateWindowSurface(m_Display, m_Config, (ANativeWindow*) windowHandle, NULL);
+        EGLBoolean tempCurrentCtx = eglMakeCurrent(m_Display, tmpSurface, tmpSurface, m_Context);
+        OSE_ASSERT(tempCurrentCtx, "Failed to activate context");
+
+        int glad = gladLoadGLES2Loader((GLADloadproc) eglGetProcAddress);
+        OSE_ASSERT(glad, "Failed to init glad");
+
+        eglMakeCurrent(m_Display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        eglDestroySurface(m_Display, tmpSurface);
         //save somewhere version and available extensions
     }
 
@@ -140,5 +151,11 @@ namespace OSE {
             return eglSwapBuffers(m_SwapChains[handle]->display, m_SwapChains[handle]->surface) == EGL_TRUE;
 
         return false;
+    }
+
+    void AndroidGLContext::Dispose()
+    {
+        GLContext::Dispose();
+        m_SwapChains.clear();
     }
 }

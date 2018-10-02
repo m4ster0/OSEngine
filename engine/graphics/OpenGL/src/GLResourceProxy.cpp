@@ -93,7 +93,7 @@ namespace OSE {
         GLVertexArray* array = m_Context->m_VertexArrayResources.At(layout.GetID());
         GLBuffer* vbo = m_Context->m_BufferResources.At(vertexBuffer.GetID());
 
-        array->MakeVAO(*vbo);
+        array->MakeVAO(*vbo, nullptr);
     }
 
     void GLResourceProxy::GroupVertices(VertexLayoutHandle layout, BufferHandle vertexBuffer, BufferHandle indexBuffer)
@@ -107,7 +107,7 @@ namespace OSE {
         GLBuffer* vbo = m_Context->m_BufferResources.At(vertexBuffer.GetID());
         GLBuffer* ibo = m_Context->m_BufferResources.At(indexBuffer.GetID());
 
-        array->MakeVAO(*vbo, *ibo);
+        array->MakeVAO(*vbo, ibo);
     }
 
     TextureHandle GLResourceProxy::CreateTexture(const TextureDescriptor& desc, const Image* image)

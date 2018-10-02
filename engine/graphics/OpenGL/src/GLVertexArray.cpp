@@ -16,7 +16,7 @@ namespace OSE {
     }
 
     GLVertexArray::GLVertexArray(int32 id, const std::vector<VertexAttributeDescriptor>& attributes):
-        GLResource(id), m_Layout{ attributes }
+            GLResource(id), m_Layout{ attributes }
     {
 
     }
@@ -26,7 +26,7 @@ namespace OSE {
         Dispose();
     }
 
-    void GLVertexArray::BindVerbose(const GLBuffer& vbo, const GLBuffer* ibo)
+    void GLVertexArray::BindArrays(const GLBuffer& vbo, const GLBuffer* ibo)
     {
         vbo.Bind();
         m_Layout.Bind();
@@ -46,24 +46,32 @@ namespace OSE {
         return -1;
     }
 
-    size_t GLVertexArray::BindInternal(const GLBuffer& vbo, const GLBuffer* ibo, size_t count)
+    void GLVertexArray::BindInternal(const GLBuffer & vbo, const GLBuffer * ibo)
+    {
+        if (oseCheckGLExtension<oseGLExtension::VertexArrayObject>())
+            BindVAO(vbo, ibo);
+        else
+            BindArrays(vbo, ibo);
+    }
+
+
+    void GLVertexArray::BindVAO(const GLBuffer& vbo, const GLBuffer* ibo)
     {
         int64 vaoHandle = GetVAOHandle(vbo, ibo);
         auto it = m_VAOs.find(vaoHandle);
         if (vaoHandle >= 0 && it != m_VAOs.end())
         {
             GLCall(glBindVertexArray(it->second->handle));
-            return count;
-
+        }
+        else
+        {
+            GLCall(glBindVertexArray(0));
+            BindArrays(vbo, ibo);
         }
 
-        GLCall(glBindVertexArray(0));
-        BindVerbose(vbo, ibo);
-
-        return count;
     }
 
-    void GLVertexArray::MakeVAOInternal(const GLBuffer& vbo, const GLBuffer* ibo)
+    void GLVertexArray::MakeVAO(const GLBuffer& vbo, const GLBuffer* ibo)
     {
         if (oseCheckGLExtension<oseGLExtension::VertexArrayObject>())
         {
@@ -73,30 +81,22 @@ namespace OSE {
             {
                 m_VAOs[vaoHandle] = std::unique_ptr<GLVertexArrayObject>{ new GLVertexArrayObject };
                 GLCall(glBindVertexArray(m_VAOs[vaoHandle]->handle));
-                BindVerbose(vbo, ibo);
+                BindArrays(vbo, ibo);
             }
         }
-    }
-
-    void GLVertexArray::MakeVAO(const GLBuffer& vbo)
-    {
-        MakeVAOInternal(vbo, nullptr);
-    }
-
-    void GLVertexArray::MakeVAO(const GLBuffer& vbo, const GLBuffer& ibo)
-    {
-        MakeVAOInternal(vbo, &ibo);
     }
 
     size_t GLVertexArray::Bind(const GLBuffer& vbo)
     {
         size_t vertexCount = vbo.GetSize() / m_Layout.GetSize();
-        return BindInternal(vbo, nullptr, vertexCount);
+        BindInternal(vbo, nullptr);
+        return vertexCount;
     }
 
     size_t GLVertexArray::BindIndexed(const GLBuffer& vbo, const GLBuffer& ibo)
     {
-        return BindInternal(vbo, &ibo, ibo.GetSize());
+        BindInternal(vbo, &ibo);
+        return ibo.GetSize();
     }
 
     void GLVertexArray::Dispose()

@@ -34,7 +34,7 @@ namespace OSE {
         virtual GraphicsAPI GetAPI() = 0;
 
     protected:
-        virtual bool Initialize() = 0;
+        virtual bool Initialize(void* windowHandle) = 0;
         virtual void Terminate() = 0;
     };
 

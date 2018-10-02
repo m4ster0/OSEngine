@@ -95,7 +95,7 @@ namespace OSE {
             for (std::size_t row = 0; row < m; ++row)
             {
                 for (std::size_t col = 0; col < n; ++col)
-                    result[n][m] = mat[m][n];
+                    result[col][row] = mat[row][col];
             }
 
             return result;

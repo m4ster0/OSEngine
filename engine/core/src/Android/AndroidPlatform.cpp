@@ -21,12 +21,11 @@ namespace OSE {
 
     void Platform::OnWindowCreate()
     {
-        if(g_Application->window == nullptr)
+        m_WindowHandle = (void*)::g_Application->window;
+        if(m_WindowHandle == nullptr)
             return;
 
-        bool ctxRecreated = m_GraphicsDevice->Initialize();
-
-        m_WindowHandle = (void*)::g_Application->window;
+        bool ctxRecreated = m_GraphicsDevice->Initialize(m_WindowHandle);
         m_WindowSCHandle = m_GraphicsDevice->CreateSwapChain(m_WindowHandle);
         m_GraphicsDevice->MakeCurrent(m_WindowSCHandle);
 

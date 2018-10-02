@@ -17,10 +17,10 @@ namespace OSE {
             NULL, NULL, g_WindowClass.hInstance, NULL);
     }
 
-    Win32GLContext::Win32GLContext()
+    Win32GLContext::Win32GLContext(void* windowHandle)
     {
-        HWND dummyHWND = GetDummyWindowHandle();
-        HDC dummyHDC = GetDC(dummyHWND);
+        HWND hwnd = (HWND) windowHandle;
+        HDC dummyHDC = GetDC(hwnd);
 
         m_PixelFormatDescriptor.nSize        = sizeof(m_PixelFormatDescriptor);
         m_PixelFormatDescriptor.nVersion     = 1;
@@ -28,6 +28,7 @@ namespace OSE {
         m_PixelFormatDescriptor.iPixelType   = PFD_TYPE_RGBA;
         m_PixelFormatDescriptor.cColorBits   = 32;
         m_PixelFormatDescriptor.cAlphaBits   = 8;
+        m_PixelFormatDescriptor.cDepthBits   = 24;
 
         m_PixelFormat = ChoosePixelFormat(dummyHDC, &m_PixelFormatDescriptor);
         OSE_ASSERT(m_PixelFormat, "Pixel format not found");
@@ -50,8 +51,7 @@ namespace OSE {
         //std::cout << "-----------" << std::endl;
 
         wglMakeCurrent(dummyHDC, NULL);
-        ReleaseDC(dummyHWND, dummyHDC);
-        DestroyWindow(dummyHWND);
+        ReleaseDC(hwnd, dummyHDC);
     }
 
     Win32GLContext::~Win32GLContext()

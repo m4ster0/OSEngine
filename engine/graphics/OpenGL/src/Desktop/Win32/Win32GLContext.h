@@ -55,6 +55,6 @@ namespace OSE {
         void Dispose() override;
 
     protected:
-        Win32GLContext();
+        Win32GLContext(void* windowHandle);
     };
 }

@@ -49,6 +49,6 @@ namespace OSE {
         void Dispose() override;
 
     protected:
-        AndroidGLContext();
+        AndroidGLContext(void* windowHandle);
     };
 }

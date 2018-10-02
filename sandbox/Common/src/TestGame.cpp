@@ -50,38 +50,20 @@ void TestGame::OnLoad()
 
     OSE::FileSystem fileSystem{ };
 
+#ifdef WIN32
+    std::string shaderPath = "Assets/Shaders/default.glsl.shader";
+    std::string texPrefix = "Assets/Textures/";
+#else
+    std::string shaderPath = "Shaders/default.glsl.shader.es";
+    std::string texPrefix = "Textures/";
+#endif
+
     std::string shaderSrc;
-    std::unique_ptr<OSE::File> shaderFile = fileSystem.OpenFileSync("assets", "Assets/Shaders/default.glsl.shader", OSE::FileMode::Read);
+    std::unique_ptr<OSE::File> shaderFile = fileSystem.OpenFileSync("assets", shaderPath, OSE::FileMode::Read);
     if (shaderFile && shaderFile->Read(shaderSrc))
     {
         OSE_DEBUG("Shader source: \n", shaderSrc);
     }
-
-
-
-#ifdef WIN32
-#else
-    std::string vertSource = R"vert(
-        attribute vec4 vPosition;
-
-        void main()
-        {
-            gl_Position = vPosition;
-        }
-    )vert";
-#endif
-
-#ifdef WIN32
-#else
-    std::string fragSource = R"frag(
-        precision mediump float;
-
-        void main()
-        {
-            gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-        }
-    )frag";
-#endif
 
     std::unique_ptr<OSE::GraphicsResourceProxy> resProxy = OSE::Platform::Instance().GetGraphicsDevice().CreateResourceProxy();
 
@@ -100,7 +82,7 @@ void TestGame::OnLoad()
     material.projUniform = resProxy->GetProgramUniform<OSE::Mat4>(programHandle, "projection");
 
     std::unique_ptr<OSE::Image> image{ nullptr };
-    image = OSE::ImageFactory::decode(fileSystem, "assets", "Assets/Textures/container.jpg", { OSE::Image::Format::RGB, false });
+    image = OSE::ImageFactory::decode(fileSystem, "assets", texPrefix + "container.jpg", { OSE::Image::Format::RGB, false });
     if (image)
     {
         OSE::TextureDescriptor texDesc{};
@@ -108,7 +90,7 @@ void TestGame::OnLoad()
         image->Dispose();
     }
 
-    image = OSE::ImageFactory::decode(fileSystem, "assets", "Assets/Textures/awesomeface.png", { OSE::Image::Format::RGBA, true });
+    image = OSE::ImageFactory::decode(fileSystem, "assets", texPrefix + "awesomeface.png", { OSE::Image::Format::RGBA, true });
     if (image)
     {
         OSE::TextureDescriptor texDesc{};
@@ -159,8 +141,8 @@ void TestGame::OnLoad()
     cube.layout = vertLayout;
     PopulateMesh(*resProxy, cube, &cubeGeometry.vertices[0], cubeGeometry.vertices.size(), &cubeGeometry.indices[0], cubeGeometry.indices.size());
     resProxy->GroupVertices(cube.layout, cube.vertexBuffer, cube.indexBuffer);
-    //triangle1.layout = vertLayout;
-    //PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
+    triangle1.layout = vertLayout;
+    PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
 
     //triangle2.layout = vertLayout;
     //PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
@@ -229,6 +211,9 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
 
     material.viewUniform->Bind(view);
     material.projUniform->Bind(projection);
+//    material.viewUniform->Bind(OSE::Mat4{});
+//    material.projUniform->Bind(OSE::Mat4{});
+
 
     //pass renderer to check for currently bound program or leave it for user?
     material.tex0sampler->Bind(0);
@@ -242,8 +227,8 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
         cube.vertexBuffer, cube.indexBuffer);
 
-    //renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
-    //    triangle1.vertexBuffer, triangle1.indexBuffer);
+//    renderer->DrawIndexed(triangle1.layout, OSE::RenderPrimitive::Triangles,
+//        triangle1.vertexBuffer, triangle1.indexBuffer);
     //material.transformUniform->Bind(OSE::Mat4{});
     //renderer->Draw(triangle2.layout, OSE::RenderPrimitive::Triangles,
     //    triangle2.vertexBuffer);

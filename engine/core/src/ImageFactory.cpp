@@ -1,4 +1,4 @@
-#include "OSE/REsources/ImageFactory.h"
+#include "OSE/Resources/ImageFactory.h"
 
 #define STBI_NO_STDIO
 #define STBI_NO_GIF

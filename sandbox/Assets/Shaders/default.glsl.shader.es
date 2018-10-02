@@ -1,12 +1,11 @@
 %%vertex
-#version 330 core
 
-in vec3 aPosition;
-in vec3 aColor;
-in vec2 aTexCoord0;
+attribute vec3 aPosition;
+attribute vec3 aColor;
+attribute vec2 aTexCoord0;
 
-out vec3 vColor;
-out vec2 vTexCoord0;
+varying vec3 vColor;
+varying vec2 vTexCoord0;
 
 uniform float time;
 uniform mat4 model;
@@ -24,18 +23,17 @@ void main()
 %%vertex
 
 %%fragment
-#version 330 core
+precision mediump float;
 
-out vec4 FragColor;
-
-in vec3 vColor;
-in vec2 vTexCoord0;
+varying vec3 vColor;
+varying vec2 vTexCoord0;
 
 uniform sampler2D texture0;
 uniform sampler2D texture1;
 
 void main()
 {
-    FragColor = mix(texture(texture0, vTexCoord0), texture(texture1, vTexCoord0), 0.2);
+    //gl_FragColor = texture2D(texture0, vTexCoord0) + texture2D(texture1, vTexCoord0);
+    gl_FragColor = mix(texture2D(texture0, vTexCoord0), texture2D(texture1, vTexCoord0), 0.2);
 }
 %%fragment

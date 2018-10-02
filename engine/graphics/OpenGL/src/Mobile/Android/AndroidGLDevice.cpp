@@ -3,8 +3,8 @@
 
 namespace OSE {
 
-    void GLDevice::CreateContextInternal()
+    void GLDevice::CreateContextInternal(void* windowHandle)
     {
-        m_ImmediateContext = std::unique_ptr<GLContext>( new AndroidGLContext() );
+        m_ImmediateContext = std::unique_ptr<GLContext>( new AndroidGLContext(windowHandle) );
     }
 }
