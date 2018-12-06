@@ -12,7 +12,7 @@ struct BitMaskOperators
 };
 
 template<typename Enum>
-typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
+constexpr typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
 operator|(Enum lhs, Enum rhs)
 {
     //static_assert(std::is_enum<Enum>::value);
@@ -22,7 +22,7 @@ operator|(Enum lhs, Enum rhs)
 }
 
 template<typename Enum>
-typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
+constexpr typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
 operator&(Enum lhs, Enum rhs)
 {
     //static_assert(std::is_enum<Enum>::value);
@@ -32,7 +32,7 @@ operator&(Enum lhs, Enum rhs)
 }
 
 template<typename Enum>
-typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
+constexpr typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type
 operator~(Enum rhs)
 {
     //static_assert(std::is_enum<Enum>::value);
@@ -42,7 +42,7 @@ operator~(Enum rhs)
 }
 
 template<typename Enum>
-typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type&
+constexpr typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type&
 operator|=(Enum& lhs, Enum rhs)
 {
     //static_assert(std::is_enum<Enum>::value);
@@ -53,7 +53,7 @@ operator|=(Enum& lhs, Enum rhs)
 }
 
 template<typename Enum>
-typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type&
+constexpr typename std::enable_if<BitMaskOperators<Enum>::enabled, Enum>::type&
 operator&=(Enum& lhs, Enum rhs)
 {
     //static_assert(std::is_enum<Enum>::value);

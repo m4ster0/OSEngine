@@ -16,9 +16,10 @@ namespace OSE {
         bool Present(SwapChainHandle handle) override;
         void DestroySwapChain(SwapChainHandle handle) override;
 
-        std::unique_ptr<GraphicsResourceProxy> CreateResourceProxy() override;
-        std::unique_ptr<GraphicsRenderer> CreateRenderer() override;
-        GraphicsAPI GetAPI() override;
+        GraphicsResourceProxy* GetResourceProxy() override;
+        GraphicsRenderer* GetRenderer() override;
+        const GraphicsConfig* GetCurrentConfig() const override;
+        GraphicsAPI GetAPI() const override;
     protected:
         std::unique_ptr<GLContext> m_ImmediateContext{ nullptr };
 

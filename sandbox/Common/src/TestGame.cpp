@@ -3,7 +3,6 @@
 #include <OSE/Platform.h>
 #include <OSE/Graphics/GraphicsResourceProxy.h>
 #include <OSE/Graphics/GraphicsResourceDescriptor.h>
-#include <OSE/Graphics/GLCommon.h>
 #include <OSE/Resources/ImageFactory.h>
 #include <OSE/Log.h>
 #include <OSE/TypeDefs.h>
@@ -38,15 +37,23 @@ TestGame::~TestGame() {}
 
 void TestGame::OnStart()
 {
-    view = OSE::Math::lookAt(OSE::Vec3{ 10.0f, 3.0f, -3.0f }, OSE::Vec3{ 0, 0, 0}, OSE::Vec3::YAxis);
-    projection = OSE::Math::perspective(OSE::Math::toRadians(45.0f), 800.0f / 480.0f, 0.1f, 100.0f);
+    //camera.SetPerspective(45.0f, 800.0f / 480.0f, 0.1f, 100.0f);
+    camera.SetOrthographic(0, 8, 0, 4.8f, 0.1f, 100.0f);
+    camera.position = OSE::Vec3{ 10.0f, 3.0f, -3.0f };
+    camera.direction = OSE::Quaternion::LookRotation(OSE::Vec3::Zero - camera.position, OSE::Vec3::YAxis);
+    camera.UpdateView();
+    //view = OSE::Math::lookAt(OSE::Vec3{ 10.0f, 3.0f, -3.0f }, OSE::Vec3{ 0, 0, 0}, OSE::Vec3::YAxis);
+    //projection = OSE::Math::perspective(45.0f, 800.0f / 480.0f, 0.1f, 100.0f);
 }
 
 void TestGame::OnLoad()
 {
-    glViewport(0, 0, 800, 480);
-    glEnable(GL_DEPTH_TEST);
-    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    OSE::GraphicsResourceProxy* resProxy = OSE::Platform::Instance().GetGraphicsDevice().GetResourceProxy();
+    renderer = OSE::Platform::Instance().GetGraphicsDevice().GetRenderer();
+
+    renderer->SetViewport(0, 0, 800, 480);
+    renderer->SetDepthTest(true);
+    renderer->SetClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 
     OSE::FileSystem fileSystem{ };
 
@@ -64,8 +71,6 @@ void TestGame::OnLoad()
     {
         OSE_DEBUG("Shader source: \n", shaderSrc);
     }
-
-    std::unique_ptr<OSE::GraphicsResourceProxy> resProxy = OSE::Platform::Instance().GetGraphicsDevice().CreateResourceProxy();
 
     OSE_DEBUG("Creating shader....");
     std::vector<OSE::ShaderDescriptor> shaderDescs = OSE::shaderDescriptorsFromSource(shaderSrc);
@@ -144,29 +149,6 @@ void TestGame::OnLoad()
     triangle1.layout = vertLayout;
     PopulateMesh(*resProxy, triangle1, positions1, positions1Count, &indices1[0], indices1.size());
 
-    //triangle2.layout = vertLayout;
-    //PopulateMesh(*resProxy, triangle2, &positions2[0], positions2.size());
-
-    //resProxy->GroupVertices(triangle1.layout, triangle1.vertexBuffer, triangle1.indexBuffer);
-
-
-    renderer = OSE::Platform::Instance().GetGraphicsDevice().CreateRenderer();
-
-    //Sprite sprite
-    //Font font
-    //ImageLoader imgLoader{ fileSystem };
-
-    //TextureDescriptor
-    //{
-    //  format = RGB565, RGB888, RGBA8888 itp
-    //}
-    //Image someImg = imgLoader.load(device, path);
-    //promise<Image> someImg = imgLoader.loadAsync(device, path);
-    //TextureHandle handle = resProxy->CreateTexture(someImg, textureDescriptor);
-
-    //Material
-    //shader
-
     //RenderCommandBuffer renderCmdBuffer = GraphicsDevice()->CreateRenderCommandBuffer();
 
     //DrawCall& call = renderCmdBuffer->CreateDrawCall(shaderRID, primitive, layout, vboRID);
@@ -199,18 +181,23 @@ void TestGame::OnUpdate(const OSE::GameTime &gameTime)
 
 void TestGame::OnRender(const OSE::GameTime &gameTime)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    renderer->Clear(OSE::GraphicsBufferMode::Color | OSE::GraphicsBufferMode::Depth);
 
     float gameTimeSecs = (float) gameTime.total.Seconds();
     OSE::Mat4 translate = OSE::Math::translate(OSE::Vec3{ 2.0f, 2.0f, 0.0f });
-    OSE::Mat4 rotate = OSE::Math::rotate(OSE::Math::toRadians(50.0f) * gameTimeSecs, OSE::Vec3{ 1.0f, 1.0f, -1.0f });
+    OSE::Mat4 rotate = OSE::Math::rotate(50.0f * gameTimeSecs, OSE::Vec3{ 1.0f, 1.0f, -1.0f });
+    OSE::Quaternion cameraRot = OSE::Quaternion::AngleAxis(OSE::Vec3::YAxis, 10.0f * gameTime.delta.Seconds());
+
+    //camera.position = cameraRot * camera.position;
+    //camera.direction = OSE::Quaternion::LookRotation(OSE::Vec3::Zero - camera.position, OSE::Vec3::YAxis);
+    //camera.UpdateView();
 
     renderer->BindProgram(material.program);
     renderer->BindTexture(material.tex0, 0);
     renderer->BindTexture(material.tex1, 1);
 
-    material.viewUniform->Bind(view);
-    material.projUniform->Bind(projection);
+    material.viewUniform->Bind(camera.GetView());
+    material.projUniform->Bind(camera.GetProjection());
 //    material.viewUniform->Bind(OSE::Mat4{});
 //    material.projUniform->Bind(OSE::Mat4{});
 
@@ -223,7 +210,17 @@ void TestGame::OnRender(const OSE::GameTime &gameTime)
     renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
         cube.vertexBuffer, cube.indexBuffer);
 
-    material.modelUniform->Bind(OSE::Mat4{});
+    OSE::Quaternion firstRot = OSE::Quaternion::AngleAxis(OSE::Vec3{ 1, 0, 0 }, 45.0f);
+    OSE::Quaternion secondRot = OSE::Quaternion::AngleAxis(OSE::Vec3{ 0, 1, 0 }, 50.0f * gameTimeSecs);
+    OSE::Quaternion thirdRot = OSE::Quaternion::AngleAxis(OSE::Vec3{ 0, 0, 1 }, 90.0f);
+
+    OSE::Mat4 rot1 = OSE::Math::rotate(60.0f, OSE::Vec3{ 0, 0, 1 });
+    OSE::Mat4 rot2 = OSE::Math::rotate(50.0f * gameTimeSecs, OSE::Vec3{ 0, 1, 0 });
+
+    secondRot.normalize();
+
+    material.modelUniform->Bind(OSE::Math::translate(OSE::Vec3{ 0, 0, -2 }) * OSE::Math::rotate(thirdRot * secondRot * firstRot));
+    //material.modelUniform->Bind(OSE::Math::rotate(firstRot) * OSE::Math::rotate(secondRot));
     renderer->DrawIndexed(cube.layout, OSE::RenderPrimitive::Triangles,
         cube.vertexBuffer, cube.indexBuffer);
 

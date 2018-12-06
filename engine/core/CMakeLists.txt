@@ -5,6 +5,8 @@ set(SRC_FILES
     ${SRC_DIR}/Math/Geometry.cpp
     ${SRC_DIR}/Math/Plane.cpp
     ${SRC_DIR}/Math/Cube.cpp
+	${SRC_DIR}/Math/Quaternion.cpp
+	${SRC_DIR}/Camera.cpp
     ${SRC_DIR}/Timer.cpp
     ${SRC_DIR}/Logger.cpp
     ${SRC_DIR}/GraphicsResourceDescriptor.cpp
@@ -90,7 +92,8 @@ if ( (NOT ANDROID) AND ose-cmake_BUILD_TESTS )
             ${TEST_DIR}/TimerTest.cpp
             ${TEST_DIR}/Math/VectorTest.cpp
             ${TEST_DIR}/Math/MatrixTest.cpp
-            ${TEST_DIR}/Math/OperationTest.cpp)
+            ${TEST_DIR}/Math/OperationTest.cpp
+			${TEST_DIR}/Math/QuaternionTest.cpp)
 
     add_executable(oceansoul-core-tests ${TEST_SRC})
     target_include_directories(oceansoul-core-tests PRIVATE ${Boost_INCLUDE_DIRS})

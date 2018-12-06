@@ -3,7 +3,7 @@
 namespace OSE {
 
     GLContext::GLContext():
-        m_ProgramResources{ 50 }, m_BufferResources{ 500 }, m_VertexArrayResources{ 50 }, m_TextureResources{ 50 }
+        m_ProgramResources{ 50 }, m_BufferResources{ 500 }, m_VertexArrayResources{ 50 }, m_TextureResources{ 50 }, m_ResourceProxy{ this }, m_Renderer{ this }
     {
 
     }

@@ -4,14 +4,20 @@
 
 namespace OSE {
 
-    std::unique_ptr<GraphicsRenderer> GLDevice::CreateRenderer()
+    GraphicsRenderer* GLDevice::GetRenderer()
     {
-        return std::unique_ptr<GraphicsRenderer>( new GLRenderer(m_ImmediateContext.get()) );
+        if (m_ImmediateContext && m_ImmediateContext->IsValid())
+            return &m_ImmediateContext->GetRenderer();
+
+        return nullptr;
     }
 
-    std::unique_ptr<GraphicsResourceProxy> GLDevice::CreateResourceProxy()
+    GraphicsResourceProxy* GLDevice::GetResourceProxy()
     {
-        return std::unique_ptr<GraphicsResourceProxy>( new GLResourceProxy(m_ImmediateContext.get()) );
+        if (m_ImmediateContext && m_ImmediateContext->IsValid())
+            return &m_ImmediateContext->GetResourceProxy();
+
+        return nullptr;
     }
 
     SwapChainHandle GLDevice::CreateSwapChain(void* windowHandle)
@@ -44,9 +50,17 @@ namespace OSE {
             m_ImmediateContext->DestroySwapChain(handle);
     }
 
-    GraphicsAPI GLDevice::GetAPI()
+    GraphicsAPI GLDevice::GetAPI() const
     {
         return GraphicsAPI::OPENGL;
+    }
+
+    const GraphicsConfig* GLDevice::GetCurrentConfig() const
+    {
+        if (m_ImmediateContext && m_ImmediateContext->IsValid())
+            return &m_ImmediateContext->GetConfig();
+
+        return nullptr;
     }
 
     bool GLDevice::Initialize(const void* windowHandle, const GraphicsConfig& config)
@@ -67,5 +81,6 @@ namespace OSE {
             m_ImmediateContext->Dispose();
 
         m_ImmediateContext = nullptr;
+
     }
 }

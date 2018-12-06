@@ -1,5 +1,6 @@
 #pragma once
 
+#include "OSE/Math/Common.h"
 #include "OSE/Math/Vector.h"
 
 #include <array>
@@ -113,5 +114,56 @@ namespace OSE {
         }
 
         return result;
+    }
+
+    namespace Math {
+
+        template<typename T, std::size_t m, std::size_t n>
+        inline Matrix<T, n, m> transpose(const Matrix<T, m, n>& mat)
+        {
+            Matrix<T, n, m> result;
+
+            for (std::size_t row = 0; row < m; ++row)
+            {
+                for (std::size_t col = 0; col < n; ++col)
+                    result[col][row] = mat[row][col];
+            }
+
+            return result;
+        }
+
+        template<typename T, std::size_t n, typename = FPEnabled<T>>
+        T determinant(const Matrix<T, n, n>& mat)
+        {
+            //gauss
+            Matrix<T, n, n> tmp{ mat };
+            T det{ 1.0f };
+            for (std::size_t i = 0; i < n; ++i)
+            {
+                det *= tmp[i][i];
+                for (std::size_t j = i + 1; j < n; ++j)
+                {
+                    T colRatio = tmp[i][j] / tmp[i][i];
+                    for (std::size_t k = i + 1; k < n; ++k)
+                        tmp[k][j] -= colRatio * tmp[k][i];
+                }
+            }
+
+            return det;
+        }
+
+        template<typename T, std::size_t n, typename = FPEnabled<T>>
+        bool inverse(Matrix<T, n, n>& mat)
+        {
+            T det = determinant(mat);
+            if (det != 0)
+            {
+                //TODO
+                return true;
+            }
+
+            return false;
+        }
+
     }
 }

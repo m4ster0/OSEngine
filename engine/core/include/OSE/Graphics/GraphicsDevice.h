@@ -30,10 +30,10 @@ namespace OSE {
         virtual bool Present(SwapChainHandle handle) = 0;
         virtual void DestroySwapChain(SwapChainHandle handle) = 0;
 
-        virtual std::unique_ptr<GraphicsResourceProxy> CreateResourceProxy() = 0;
-        virtual std::unique_ptr<GraphicsRenderer> CreateRenderer() = 0;
-        virtual GraphicsAPI GetAPI() = 0;
-        //virtual const GraphicsConfig* GetCurrentConfig() const = 0;
+        virtual GraphicsResourceProxy* GetResourceProxy() = 0;
+        virtual GraphicsRenderer* GetRenderer() = 0;
+        virtual const GraphicsConfig* GetCurrentConfig() const = 0;
+        virtual GraphicsAPI GetAPI() const = 0;
 
     protected:
         virtual bool Initialize(const void* windowHandle, const GraphicsConfig& config) = 0;

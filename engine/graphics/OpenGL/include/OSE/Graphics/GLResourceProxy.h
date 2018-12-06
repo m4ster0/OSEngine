@@ -1,10 +1,9 @@
 #pragma once
 
-#include "OSE/Graphics/GLContext.h"
-
 #include <OSE/Graphics/GraphicsResourceProxy.h>
 
 namespace OSE {
+    class GLContext;
 
     class GLResourceProxy : public GraphicsResourceProxy
     {

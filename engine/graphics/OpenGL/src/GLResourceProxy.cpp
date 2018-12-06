@@ -1,4 +1,5 @@
 #include "OSE/Graphics/GLResourceProxy.h"
+#include "OSE/Graphics/GLContext.h"
 
 #include <OSE/Log.h>
 

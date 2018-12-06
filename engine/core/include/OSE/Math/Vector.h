@@ -1,5 +1,7 @@
 #pragma once
 
+#include "OSE/Math/Common.h"
+
 #include <array>
 #include <initializer_list>
 #include <cassert>
@@ -38,6 +40,23 @@ namespace OSE {
         {
             assert(index >= 0 && index < n);
             return components[index];
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline T length()
+        {
+            T sum{ 0.0f };
+            for (const T& comp : components)
+                sum += comp * comp;
+            return std::sqrt(sum);
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline void normalize()
+        {
+            T len = length();
+            for (std::size_t i = 0; i < n; ++i)
+                components[i] = components[i] / len;
         }
     };
 
@@ -81,6 +100,20 @@ namespace OSE {
         {
             assert(index >= 0 && index < 2);
             return components[index];
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline T length()
+        {
+            return std::sqrt(x * x + y * y);
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline void normalize()
+        {
+            T len = length();
+            x /= len;
+            y /= len;
         }
     };
 
@@ -139,6 +172,20 @@ namespace OSE {
             return components[index];
         }
 
+        template<typename = Math::FPEnabled<T>>
+        inline T length()
+        {
+            return std::sqrt(x * x + y * y + z * z);
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline void normalize()
+        {
+            T len = length();
+            x /= len;
+            y /= len;
+            z /= len;
+        }
     };
 
     template<typename T>
@@ -199,6 +246,22 @@ namespace OSE {
         {
             assert(index >= 0 && index < 4);
             return components[index];
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline T length()
+        {
+            return std::sqrt(x * x + y * y + z * z + w * w);
+        }
+
+        template<typename = Math::FPEnabled<T>>
+        inline void normalize()
+        {
+            T len = length();
+            x /= len;
+            y /= len;
+            z /= len;
+            w /= len;
         }
     };
 
@@ -373,6 +436,7 @@ namespace OSE {
         return lhs;
     }
 
+    //two version for floating points and others
     //template<typename T, std::size_t n>
     //bool operator==(const Vector<T, n>& lhs, const Vector<T, n>& rhs)
     //{
@@ -399,5 +463,45 @@ namespace OSE {
             result[i] = -vec[i];
 
         return result;
+    }
+
+    namespace Math {
+
+        template<typename T, std::size_t n, typename = FPEnabled<T>>
+        inline T distance(const Vector<T, n>& vec1, const Vector<T, n>& vec2)
+        {
+            return (vec1 - vec2).length();
+        }
+
+        template<typename T, std::size_t n, typename = FPEnabled<T>>
+        inline Vector<T, n> normalize(const Vector<T, n>& vec)
+        {
+            Vector<T, n> result{ vec };
+            result.normalize();
+
+            return result;
+        }
+
+        template<typename T, std::size_t n, typename = FPEnabled<T>>
+        inline T dot(const Vector<T, n>& vec1, const Vector<T, n>& vec2)
+        {
+            T result{};
+            for (std::size_t i = 0; i < n; ++i)
+                result += vec1[i] * vec2[i];
+
+            return result;
+        }
+
+        template<typename T, typename = FPEnabled<T>>
+        inline Vector<T, 3> cross(const Vector<T, 3>& vec1, const Vector<T, 3>& vec2)
+        {
+            Vector<T, 3> result;
+            result.x = vec1.y * vec2.z - vec1.z * vec2.y;
+            result.y = vec1.z * vec2.x - vec1.x * vec2.z;
+            result.z = vec1.x * vec2.y - vec1.y * vec2.x;
+
+            return result;
+        }
+
     }
 }

@@ -5,6 +5,7 @@
 #include <OSE/Graphics/GraphicsRenderer.h>
 #include <OSE/Graphics/GraphicsResourceDescriptor.h>
 #include <OSE/Graphics/GraphicsProgramUniform.h>
+#include <OSE/Graphics/Camera/Camera.h>
 #include <OSE/Math/Math.h>
 
 
@@ -51,13 +52,12 @@ public:
     virtual void OnRender(const OSE::GameTime& gameTime) override;
 
 private:
-    std::unique_ptr<OSE::GraphicsRenderer> renderer{ nullptr };
+    OSE::GraphicsRenderer* renderer{ nullptr };
 
     Material material;
     Mesh triangle1;
     Mesh triangle2;
     Mesh cube;
 
-    OSE::Mat4 view;
-    OSE::Mat4 projection;
+    OSE::Camera camera;
 };

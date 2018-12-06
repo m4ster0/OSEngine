@@ -64,9 +64,10 @@ namespace OSE {
     struct PlatformCommands
     {
         int32_t cmd;
+        AInputEvent* event;
     };
 
-    bool handlePlatformCommands(const PlatformCommands& cmds)
+    bool handleWindowCommands(const PlatformCommands& cmds)
     {
         Platform& platform = Platform::Instance();
 
@@ -99,7 +100,7 @@ namespace OSE {
 
 void handle_cmd(struct android_app*, int32_t cmd)
 {
-    OSE::handlePlatformCommands(OSE::PlatformCommands{ cmd });
+    OSE::handleWindowCommands(OSE::PlatformCommands{ cmd, nullptr });
 }
 
 int32_t handle_input(struct android_app* application, AInputEvent* event)

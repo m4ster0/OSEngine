@@ -9,6 +9,9 @@
 #include "OSE/Graphics/GLVertexArray.h"
 #include "OSE/Graphics/GLTexture.h"
 
+#include "OSE/Graphics/GLResourceProxy.h"
+#include "OSE/Graphics/GLRenderer.h"
+
 #include <vector>
 #include <memory>
 
@@ -18,13 +21,6 @@ namespace OSE {
     {
         friend class GLResourceProxy;
         friend class GLRenderer;
-
-        ResourceStorage<GLProgram> m_ProgramResources;
-        ResourceStorage<GLBuffer> m_BufferResources;
-        ResourceStorage<GLVertexArray> m_VertexArrayResources;
-        ResourceStorage<GLTexture> m_TextureResources;
-
-        ProgramHandle m_CurrentProgram;
     public:
         GLContext();
 
@@ -41,8 +37,20 @@ namespace OSE {
         virtual bool IsValid() = 0;
         virtual void Dispose();
 
+        inline const GraphicsConfig& GetConfig() const { return m_CurrentConfig; }
+        inline GLResourceProxy& GetResourceProxy() { return m_ResourceProxy; }
+        inline GLRenderer& GetRenderer() { return m_Renderer; }
     protected:
         GraphicsConfig m_CurrentConfig{ };
 
+        ResourceStorage<GLProgram> m_ProgramResources;
+        ResourceStorage<GLBuffer> m_BufferResources;
+        ResourceStorage<GLVertexArray> m_VertexArrayResources;
+        ResourceStorage<GLTexture> m_TextureResources;
+
+        ProgramHandle m_CurrentProgram;
+
+        GLResourceProxy m_ResourceProxy;
+        GLRenderer m_Renderer;
     };
 }

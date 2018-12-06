@@ -34,14 +34,16 @@ namespace OSE {
         ATOM windowClassUId = RegisterClassEx(&g_WindowClass);
         OSE_ASSERT(windowClassUId, "Failed to register window class");
 
+        m_WindowProperties.width = 800;
+        m_WindowProperties.height = 480;
 
         // wrap in some method potentially
         HWND hwnd = CreateWindowEx(WS_EX_APPWINDOW | WS_EX_WINDOWEDGE,
             g_WindowClass.lpszClassName, "Example Window",
             WS_OVERLAPPEDWINDOW,
-            GetSystemMetrics(SM_CXSCREEN) / 2 - 800 / 2,
-            GetSystemMetrics(SM_CYSCREEN) / 2 - 480 / 2,
-            800, 480,
+            GetSystemMetrics(SM_CXSCREEN) / 2 - m_WindowProperties.width / 2,
+            GetSystemMetrics(SM_CYSCREEN) / 2 - m_WindowProperties.height / 2,
+            m_WindowProperties.width, m_WindowProperties.height,
             NULL, NULL, g_WindowClass.hInstance, NULL);
 
         OSE_ASSERT(hwnd, "Failed to create window")
@@ -79,7 +81,7 @@ namespace OSE {
     bool Platform::InternalUpdate()
     {
         MSG msg;
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        while (PeekMessage(&msg, (HWND) m_WindowHandle, 0, 0, PM_REMOVE))
         {
             if (msg.message == WM_QUIT)
                 return false;
@@ -99,27 +101,28 @@ namespace OSE {
         LPARAM lParam;
     };
 
-    bool handlePlatformCommands(const PlatformCommands& cmds)
+    bool handleWindowCommands(const PlatformCommands& cmds)
     {
         Platform& platform = Platform::Instance();
-
-        if (cmds.hWnd && (HWND) platform.m_WindowHandle != cmds.hWnd)
-            return false;
 
         switch (cmds.message)
         {
         case WM_SETFOCUS:
+            platform.m_WindowProperties.focused = true;
             platform.GetEventBus().Dispatch(OSE::WindowFocusEvent{ true });
             platform.OnResume();
             return true;
         case WM_KILLFOCUS:
             platform.OnPause();
+            platform.m_WindowProperties.focused = false;
             platform.GetEventBus().Dispatch(OSE::WindowFocusEvent{ false });
             return true;
         case WM_SIZE:
         {
             uint w = LOWORD(cmds.lParam);
             uint h = HIWORD(cmds.lParam);
+            platform.m_WindowProperties.width = w;
+            platform.m_WindowProperties.height = h;
             platform.GetEventBus().Dispatch(OSE::WindowResizeEvent{ w, h });
             return true;
         }
@@ -131,14 +134,40 @@ namespace OSE {
 
         return false;
     }
+
+    namespace {
+        inline KeyboardEvent::Key convertKey(uint vKeyCode);
+    }
+
+    bool handleInputCommands(const PlatformCommands& cmds)
+    {
+        Platform& platform = Platform::Instance();
+        Input& input = platform.GetInput();
+        switch (cmds.message)
+        {
+        case WM_KEYDOWN:
+        case WM_SYSKEYDOWN:
+            KeyboardEvent::Key key = convertKey(cmds.wParam);
+            input.m_Keys[static_cast<uint8>(key)] = true;
+            bool repeated = (cmds.lParam >> 30) & 1;
+            if (!repeated)
+            {
+
+            }
+        case WM_KEYUP:
+        case WM_SYSKEYUP:
+            return true;
+        }
+
+        return false;
+    }
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    LRESULT result = NULL;
+    OSE::PlatformCommands cmds{ hWnd, message, wParam, lParam };
+    if (OSE::handleWindowCommands(cmds) || OSE::handleInputCommands(cmds))
+        return NULL;
 
-    if (!OSE::handlePlatformCommands(OSE::PlatformCommands{ hWnd, message, wParam, lParam }))
-        result = DefWindowProc(hWnd, message, wParam, lParam);
-
-    return result;
+    return DefWindowProc(hWnd, message, wParam, lParam);;
 }
