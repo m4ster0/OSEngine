@@ -1,0 +1,3 @@
+[submodule "engine/dependencies/fmt"]
+	path = engine/dependencies/fmt
+	url = https://github.com/fmtlib/fmt.git

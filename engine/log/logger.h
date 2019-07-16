@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 
-namespace OSE {
+namespace ose::log {
 
     enum class LogLevel
     {
