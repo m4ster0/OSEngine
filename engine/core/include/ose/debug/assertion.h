@@ -11,15 +11,19 @@ namespace ose::debug {
     class Assertion
     {
         const FileInfo& m_info;
-        const char* m_format;
+        const char* m_conditionMessage;
     public:
-        inline Assertion(const FileInfo& info, const char* format): m_info{ info }, m_format{ format } { }
+        inline Assertion(const FileInfo& info, const char* conditionMessage):
+            m_info{ info }, m_conditionMessage{ conditionMessage } { }
         inline ~Assertion() = default;
 
         template<typename... FormatArgs>
-        void raise(FormatArgs&&... formatArgs)
+        void raise(const char* format, FormatArgs&&... formatArgs)
         {
-            fmt::format(m_format, std::forward<FormatArgs>(formatArgs)...);
+            fmt::format("======== ASSERT =========");
+            fmt::format(m_conditionMessage);
+            fmt::format("{}:{}", m_info.c_file, m_info.c_line);
+            fmt::format(format, std::forward<FormatArgs>(formatArgs)...);
         }
     };
 
