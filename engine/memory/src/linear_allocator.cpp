@@ -61,7 +61,7 @@ namespace ose::memory {
     LinearAllocator::~LinearAllocator()
     {
         clear();
-        
+
         void* ptr = static_cast<void*>(m_initialBuffer);
         m_upstream->deallocate(ptr);
 

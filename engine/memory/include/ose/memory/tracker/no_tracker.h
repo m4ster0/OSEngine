@@ -7,8 +7,8 @@ namespace ose::memory {
     class NoTracker
     {
     public:
-        inline void allocate([[maybe_unused]] void*, [[maybe_unused]] std::size_t, [[maybe_unused]] std::size_t) { }
-        inline void deallocate([[maybe_unused]] void*, [[maybe_unused]] std::size_t) { }
+        inline void allocate(void*, std::size_t, std::size_t) { }
+        inline void deallocate(void*, std::size_t) { }
         inline void clear() { }
     };
 

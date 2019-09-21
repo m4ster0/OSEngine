@@ -1,7 +1,7 @@
 #pragma once
 
+#include "ose/memory_debug.h"
 #include "ose/memory/i_memory_resource.h"
-
 #include "ose/memory/detail/ptr_algorithms.h"
 
 #include <ose/typedef.h>
@@ -55,6 +55,8 @@ namespace ose::memory {
                 return static_cast<void*>(ptr);
             }
 
+            OSE_ALLOC_FAIL(bytes, alignment);
+
             return nullptr;
         }
 
@@ -62,7 +64,7 @@ namespace ose::memory {
         {
             constexpr std::size_t offset = BoundsChecker::getSize();
 
-            void* allocPtr = ptr_algorithm::subtract(ptr, offset); //returns ptr to total allocated memory
+            void* allocPtr = allocPtr = ptr_algorithm::subtract(ptr, offset); //returns ptr to original allocated memory
 
             const std::size_t allocSize = m_allocator.allocationSize(allocPtr);
             const std::size_t originalSize = allocSize - (2 * offset);

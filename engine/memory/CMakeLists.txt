@@ -16,15 +16,24 @@ if (MSVC)
     set(OSE_WERROR_FLAG /WX)
 endif ()
 
+set( INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include )
 set( SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src )
+
+file(GLOB_RECURSE HEADERS
+    ${INCLUDE_DIR} *.h
+    ${INCLUDE_DIR} *.hpp
+    ${INCLUDE_DIR} *.inl)
 
 set( SOURCES
     ${SRC_DIR}/memory.cpp
     ${SRC_DIR}/system_allocator.cpp
     ${SRC_DIR}/linear_allocator.cpp )
 
-add_library( ose-memory STATIC ${SOURCES} )
+add_library( ose-memory STATIC ${SOURCES} ${HEADERS} )
 add_library( ose::memory ALIAS ose-memory )
+
+source_group(TREE ${INCLUDE_DIR} PREFIX headers FILES ${HEADERS})
+source_group(TREE ${SRC_DIR} PREFIX sources FILES ${SOURCES})
 
 set_target_properties( ose-memory PROPERTIES
 		                    ARCHIVE_OUTPUT_NAME "ose-memory"

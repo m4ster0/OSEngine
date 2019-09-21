@@ -9,9 +9,9 @@ namespace ose::memory {
         static constexpr std::size_t sc_guardSize{ 0u };
 
     public:
-        inline void guard([[maybe_unused]] OSEbyte*) { }
-        inline void validate([[maybe_unused]] OSEbyte*) { }
-        
+        inline void guard(OSEbyte*) { }
+        inline void validate(OSEbyte*) { }
+
         static constexpr std::size_t getSize() { return sc_guardSize; }
     };
 

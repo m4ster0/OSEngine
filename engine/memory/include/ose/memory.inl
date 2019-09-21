@@ -58,7 +58,7 @@ namespace ose {
 
     template<typename T>
     inline void destruct_array(T* ptr, std::size_t size, memory::IMemoryResource& resource)
-    {   
+    {
         if(ptr != nullptr)
         {
             if constexpr(!std::is_trivially_destructible<T>::value)

@@ -4,8 +4,8 @@
 
 #include <new>
 
-void* operator new(std::size_t count, std::size_t align, ose::memory::IMemoryResource& resource);
-void operator delete(void* ptr, std::size_t align, ose::memory::IMemoryResource& resource);
+void*   operator new(std::size_t count, std::size_t align, ose::memory::IMemoryResource& resource);
+void    operator delete(void* ptr, std::size_t align, ose::memory::IMemoryResource& resource);
 
 namespace ose {
 
