@@ -3,6 +3,7 @@
 #include "ose/memory/detail/ptr_algorithms.h"
 
 #include <ose/debug.h>
+#include <ose/alloc.h>
 
 #include <cstdlib>
 
@@ -26,7 +27,7 @@ namespace ose::memory {
 
         const std::size_t totalSize = ptr_algorithm::adjustSize(bytes + c_alignment, c_alignment);
 
-        if(void* allocPtr = std::aligned_alloc(c_alignment, totalSize))
+        if(void* allocPtr = ose::aligned_malloc(totalSize, c_alignment))
         {
             AllocHeader* header = nullptr;
             header = new(allocPtr) AllocHeader;
@@ -34,13 +35,13 @@ namespace ose::memory {
             return ptr_algorithm::add(allocPtr, c_alignment);
         }
 
-        return nullptr;    
+        return nullptr;
     }
 
     void SystemAllocator::deallocate(void* ptr)
     {
         void* allocPtr = ptr_algorithm::subtract(ptr, c_alignment);
-        std::free(allocPtr);
+        ose::aligned_free(allocPtr);
     }
 
     std::size_t SystemAllocator::allocationSize(void* ptr)
