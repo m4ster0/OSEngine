@@ -6,49 +6,36 @@ namespace ose::memory { class IMemoryResource; }
 
 namespace ose::memory {
 
-    struct BlockNode;
-
     /**
-     *  Linear allocator with optional overgrowth.
+     *  Linear allocator.
      *  Not possible to free single allocation, only whole buffer can be reset.
-     *  Reset causes to deallocate any overgrowth blocks allocated from upstream. 
      */
     class LinearAllocator final
     {
     public:
-        struct Options
-        {
-            bool            growthEnabled{ false };
-            float           growthFactor{ 2.0f };
-        };
-
         LinearAllocator(void* begin, void* end);
-        LinearAllocator(std::size_t initialSize, IMemoryResource& upstream, const Options& options);
+        LinearAllocator(std::size_t size, IMemoryResource& upstream);
         ~LinearAllocator();
 
         LinearAllocator(const LinearAllocator&) = delete;
-        LinearAllocator(LinearAllocator&&) = delete;
         LinearAllocator& operator=(const LinearAllocator&) = delete;
-        LinearAllocator& operator=(LinearAllocator&&) = delete;
+
+        LinearAllocator(LinearAllocator&&);
+        LinearAllocator& operator=(LinearAllocator&&);
 
         void*       allocate(std::size_t bytes, std::size_t alignment);
         void        clear();
 
+        std::size_t allocationSize(void* ptr);
+
     private:
-        std::size_t     getRemainingSize(std::size_t alignment, std::size_t& alignAdjustment) const;
-        void*           allocateCurrent(std::size_t bytes, std::size_t alignAdjustment);
+        std::size_t remainingSize(std::size_t alignment, std::size_t& alignAdjustment);
 
-        BlockNode*      allocateBlock(std::size_t bytes);
-        void            setCurrentBuffer(BlockNode* node, std::size_t size);
-
-        Options m_options{ };
+        void* m_buffer{ nullptr };
+        void* m_currentPosition{ nullptr };
+        std::size_t m_bufferSize{ 0u };
+        std::size_t m_currentSize{ 0u };
         IMemoryResource* m_upstream{ nullptr };
-
-        BlockNode* m_initialBuffer{ nullptr };
-        void* m_currentBuffer{ nullptr };
-        std::size_t m_currentBufferSize{ 0u };
-
-        std::size_t m_nextBlockSize{ 0u };
     };
 
 }

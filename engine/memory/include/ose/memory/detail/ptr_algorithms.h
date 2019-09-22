@@ -37,17 +37,23 @@ namespace ose::memory {
             return static_cast<void*>(bytePtr - bytes);
         }
 
-        inline std::size_t adjustAlignment(void* ptr, std::size_t alignment)
+        inline std::size_t adjustAlignment(void* ptr, std::size_t alignment, std::size_t offset)
         {
             const std::uintptr_t alignmentMinus1{ alignment - 1u };
+            const std::uintptr_t addressOffset{ static_cast<std::uintptr_t>(offset) };
             const std::uintptr_t currAddress{ reinterpret_cast<std::uintptr_t>(ptr) };
-            const std::uintptr_t alignedAddress{ (currAddress + alignmentMinus1) & ~alignmentMinus1 };
+            const std::uintptr_t alignedAddress{ (currAddress + addressOffset + alignmentMinus1) & ~alignmentMinus1 };
             return alignedAddress - currAddress;
         }
 
-        inline std::size_t adjustSize(std::size_t size, std::size_t alignment)
+        inline std::size_t adjustAlignment(void* ptr, std::size_t alignment)
         {
-            const std::size_t alignmentMinus1{ alignment - 1u };
+            return adjustAlignment(ptr, alignment, 0u);
+        }
+
+        inline constexpr std::size_t adjustSize(std::size_t size, std::size_t alignment)
+        {
+            constexpr std::size_t alignmentMinus1{ alignment - 1u };
             return (size + alignmentMinus1) & ~alignmentMinus1;
         }
 
@@ -58,5 +64,5 @@ namespace ose::memory {
             return (currAddress & alignmentMinus1) == 0;
         }
     }
-    
+
 }
